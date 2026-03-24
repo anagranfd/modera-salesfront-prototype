@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=1280">
+<title>EP3 · B-3a · Fix Issues Builder — Modera Publishing Tool</title>
+<link rel="stylesheet" href="../../prototype/shared/tokens.css">
+<link rel="stylesheet" href="../../prototype/shared/components.css">
+</head><body>
+<style>
+html,body{height:100%;overflow:hidden;}
+.page-wrap{display:flex;flex-direction:column;height:100vh;}
+.toolbar{background:linear-gradient(180deg,#eef6fb,#e4eef5);border:1px solid var(--border);border-radius:3px;padding:6px 10px;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.inv-row--selected td{background:#d4eaf8 !important;}
+.inv-row--selected td:first-child{border-left:3px solid #3a9ec8;}
+.inv-row--hover td{background:#e4f0f8 !important;}
+.screen-label{position:fixed;top:6px;right:8px;background:rgba(20,40,60,0.8);color:#7de0f8;font-size:10px;padding:2px 8px;border-radius:10px;z-index:400;}
+</style>
+<div class="screen-label">EP3 · B3a · Fix Issues Builder</div>
+<div class="page-wrap">
+  <div class="modera-topnav">
+    <div class="modera-topnav__logo">MODERA</div>
+    <div class="modera-topnav__module">Salesfront</div>
+    <div class="modera-topnav__right">
+      <span class="pub-status-pill pub-status-pill--idle">Publishing</span>
+      <span class="topnav-icon">🔔</span>
+      <span class="topnav-username">J. Tamm ▾</span>
+    </div>
+  </div>
+  <div class="modera-subnav">
+    <a class="subnav-tab subnav-tab--active">Inventory</a>
+    <a class="subnav-tab">Customers</a>
+    <a class="subnav-tab">Deals</a>
+  </div>
+  <div style="flex:1;overflow:auto;padding:10px 12px 60px;background:var(--page-bg);">
+    <div class="toolbar">
+      <span style="font-size:13px;font-weight:700;color:var(--text-main);">Inventory</span>
+      <input type="text" style="border:1px solid var(--border);border-radius:3px;padding:3px 8px;font-size:11.5px;width:200px;" placeholder="Search…">
+      <div style="flex:1;"></div>
+      <span style='font-size:11px;font-weight:700;color:#2a7ea8;background:linear-gradient(180deg,#5bbde0,#3a9ec8);color:#fff;padding:1px 8px;border-radius:10px;'>4 selected</span>
+      <button class="jq-btn jq-btn--primary">Publish selected</button>
+      <button class="jq-btn">+ Add vehicle</button>
+    </div>
+    <table class="inv-table" style="width:100%;"><thead><tr>
+      <th style="width:32px;"><input type="checkbox" class="jq-check"></th>
+      <th>Vehicle</th><th>Year</th><th>Reg. no.</th><th>Price</th><th>Mileage</th><th>Channels</th><th>Status</th><th>Actions</th>
+    </tr></thead><tbody><tr class="inv-row inv-row--selected">
+          <td><input type="checkbox" class="jq-check" checked></td>
+          <td style="font-weight:600;">Volkswagen Golf 1.6 TDI</td>
+          <td>2019</td><td style="color:var(--text-muted);">ABC-123</td>
+          <td style="font-weight:600;">€14,500</td><td style="color:var(--text-muted);">78,200 km</td>
+          <td><span class="ch-dot ch-dot--error"></span> <span class="ch-dot ch-dot--published"></span> <span class="ch-dot ch-dot--published"></span> <span class="ch-dot ch-dot--unpublished"></span> <span class="ch-dot ch-dot--error"></span></td>
+          <td><span class="status-badge status-badge--err">Error</span></td>
+          <td><div style="display:flex;gap:4px;"><button class="jq-btn jq-btn--sm jq-btn--primary">Publish</button> <button class="jq-btn jq-btn--sm jq-btn--red">Fix errors</button></div></td>
+        </tr><tr class="inv-row inv-row--selected">
+          <td><input type="checkbox" class="jq-check" checked></td>
+          <td style="font-weight:600;">Toyota RAV4 2.0 CVT</td>
+          <td>2021</td><td style="color:var(--text-muted);">XYZ-789</td>
+          <td style="font-weight:600;">€28,900</td><td style="color:var(--text-muted);">32,100 km</td>
+          <td><span class="ch-dot ch-dot--unpublished"></span> <span class="ch-dot ch-dot--unpublished"></span> <span class="ch-dot ch-dot--unpublished"></span> <span class="ch-dot ch-dot--unpublished"></span> <span class="ch-dot ch-dot--unpublished"></span></td>
+          <td><span class="status-badge status-badge--unpub">Unpublished</span></td>
+          <td><div style="display:flex;gap:4px;"><button class="jq-btn jq-btn--sm jq-btn--primary">Publish</button></div></td>
+        </tr><tr class="inv-row inv-row--selected">
+          <td><input type="checkbox" class="jq-check" checked></td>
+          <td style="font-weight:600;">BMW 320d xDrive</td>
+          <td>2020</td><td style="color:var(--text-muted);">BMW-555</td>
+          <td style="font-weight:600;">€31,200</td><td style="color:var(--text-muted);">55,400 km</td>
+          <td><span class="ch-dot ch-dot--published"></span> <span class="ch-dot ch-dot--published"></span> <span class="ch-dot ch-dot--published"></span> <span class="ch-dot ch-dot--published"></span> <span class="ch-dot ch-dot--published"></span></td>
+          <td><span class="status-badge status-badge--pub">Published</span></td>
+          <td><div style="display:flex;gap:4px;"><button class="jq-btn jq-btn--sm jq-btn--primary">Publish</button></div></td>
+        </tr><tr class="inv-row inv-row--selected">
+          <td><input type="checkbox" class="jq-check" checked></td>
+          <td style="font-weight:600;">Audi A4 2.0 TFSI</td>
+          <td>2018</td><td style="color:var(--text-muted);">AUD-111</td>
+          <td style="font-weight:600;">€22,800</td><td style="color:var(--text-muted);">95,000 km</td>
+          <td><span class="ch-dot ch-dot--published"></span> <span class="ch-dot ch-dot--pending"></span> <span class="ch-dot ch-dot--unpublished"></span> <span class="ch-dot ch-dot--published"></span> <span class="ch-dot ch-dot--unpublished"></span></td>
+          <td><span class="status-badge status-badge--pend">Pending</span></td>
+          <td><div style="display:flex;gap:4px;"><button class="jq-btn jq-btn--sm jq-btn--primary">Publish</button></div></td>
+        </tr><tr class="inv-row">
+          <td><input type="checkbox" class="jq-check" ></td>
+          <td style="font-weight:600;">Skoda Octavia 1.5 TSI</td>
+          <td>2022</td><td style="color:var(--text-muted);">SKO-222</td>
+          <td style="font-weight:600;">€19,900</td><td style="color:var(--text-muted);">18,500 km</td>
+          <td><span class="ch-dot ch-dot--unpublished"></span> <span class="ch-dot ch-dot--unpublished"></span> <span class="ch-dot ch-dot--unpublished"></span> <span class="ch-dot ch-dot--unpublished"></span> <span class="ch-dot ch-dot--unpublished"></span></td>
+          <td><span class="status-badge status-badge--unpub">Unpublished</span></td>
+          <td><div style="display:flex;gap:4px;"></div></td>
+        </tr></tbody></table>
+  </div>
+  
+</div>
+<div style="position:fixed;inset:0;background:rgba(20,40,60,0.6);z-index:200;display:flex;align-items:center;justify-content:center;">
+  <div class="pub-dialog" style="min-width:560px;max-width:720px;">
+    <div class="pub-dialog__header" style="">
+      <div>
+        <div class="pub-dialog__title">Fix issues — Vehicle 1 of 2 · Toyota RAV4</div>
+        <div class="wizard-steps"><span class="wizard-steps__step wizard-steps__step--done">✓ 1. Channels</span><span class="wizard-steps__connector"></span><span class="wizard-steps__step wizard-steps__step--active">● 2. Validate</span><span class="wizard-steps__connector"></span><span class="wizard-steps__step ">○ 3. Publish</span></div>
+      </div>
+      <button class="pub-dialog__close">✕</button>
+    </div>
+    <div class="pub-dialog__body"><div class="alert alert--warn" style="margin-bottom:10px;">
+      <svg width="14" height="14" viewBox="0 0 12 12" style="flex-shrink:0;color:#b07820;"><path d="M6 1.5L11 10H1L6 1.5Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+      <div><strong>Vehicle 1 of 2 with issues · Mobile.de</strong> · Missing 2 fields: Mileage (km), Fuel type</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div><label class="jq-label">Make</label><input class="jq-input" value="Toyota" disabled></div>
+      <div><label class="jq-label">Model</label><input class="jq-input" value="RAV4 2.0 CVT" disabled></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div>
+        <label class="jq-label" style="color:#b03030;">Mileage (km) *</label>
+        <input class="jq-input builder-form__field--highlighted" placeholder="e.g. 45000" type="number">
+        <div style="font-size:10px;color:#b03030;margin-top:2px;">Required by Mobile.de</div>
+      </div>
+      <div>
+        <label class="jq-label" style="color:#b03030;">Fuel type *</label>
+        <select class="jq-select builder-form__field--highlighted">
+          <option value="">Select fuel type…</option><option>Diesel</option><option>Hybrid</option>
+        </select>
+        <div style="font-size:10px;color:#b03030;margin-top:2px;">Required by Mobile.de</div>
+      </div>
+    </div></div>
+    <div class="pub-dialog__footer"><button class="jq-btn">← Back to validation</button><button class="jq-btn">Skip this vehicle</button><button class="jq-btn jq-btn--green">Save & Next vehicle →</button></div>
+  </div>
+</div></body></html>

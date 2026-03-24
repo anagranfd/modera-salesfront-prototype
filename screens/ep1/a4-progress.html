@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>EP1 · A-4 · Publishing In Progress — Modera Publishing Tool</title>
+<link rel="stylesheet" href="../../prototype/shared/tokens.css">
+<link rel="stylesheet" href="../../prototype/shared/components.css">
+<style>
+html,body{height:100%;overflow:hidden;}
+.page-wrap{display:flex;flex-direction:column;height:100vh;}
+.bg-dimmed{filter:brightness(0.82);pointer-events:none;}
+.modal-overlay{position:fixed;inset:0;background:rgba(20,40,60,0.55);z-index:100;display:flex;align-items:center;justify-content:center;}
+.spec-table{width:100%;font-size:11px;border-collapse:collapse;}
+.spec-table td{padding:3px 0;border-bottom:1px solid #eef2f5;}
+.spec-table td:first-child{color:var(--text-muted);width:45%;}
+.screen-label{position:fixed;top:6px;right:8px;background:rgba(20,40,60,0.8);color:#7de0f8;font-size:10px;padding:2px 8px;border-radius:10px;z-index:400;}
+</style>
+</head>
+<body>
+<div class="screen-label">EP1 · A4 · In Progress</div>
+<div class="page-wrap">
+  <div class="modera-topnav bg-dimmed">
+    <div class="modera-topnav__logo">MODERA</div>
+    <div class="modera-topnav__module">Salesfront</div>
+    <div class="modera-topnav__right">
+      <span class="pub-status-pill pub-status-pill--idle">Publishing</span>
+      <span class="topnav-icon">🔔</span>
+      <span class="topnav-username">J. Tamm ▾</span>
+    </div>
+  </div>
+  <div class="modera-subnav bg-dimmed">
+    <a class="subnav-tab subnav-tab--active">Inventory</a>
+    <a class="subnav-tab">Customers</a>
+    <a class="subnav-tab">Deals</a>
+  </div>
+  <div style="flex:1;background:var(--page-bg);padding:10px;filter:brightness(0.82);pointer-events:none;overflow:hidden;">
+    <table class="inv-table" style="width:100%;font-size:11px;">
+      <thead><tr>
+        <th style="width:30px;"><input type="checkbox" class="jq-check"></th>
+        <th>Vehicle</th><th>Year</th><th>Reg. no.</th><th>Price</th><th>Channels</th><th>Status</th>
+      </tr></thead>
+      <tbody>
+        <tr><td><input type="checkbox" class="jq-check"></td><td style="font-weight:600;">VW Golf 1.6 TDI</td><td>2019</td><td>ABC-123</td><td>€14,500</td><td><span class="ch-dot ch-dot--unpublished"></span><span class="ch-dot ch-dot--unpublished"></span><span class="ch-dot ch-dot--unpublished"></span></td><td><span class="status-badge status-badge--unpub">Unpublished</span></td></tr>
+        <tr><td><input type="checkbox" class="jq-check"></td><td style="font-weight:600;">Toyota RAV4 2.0</td><td>2021</td><td>XYZ-789</td><td>€28,900</td><td><span class="ch-dot ch-dot--published"></span><span class="ch-dot ch-dot--published"></span><span class="ch-dot ch-dot--published"></span></td><td><span class="status-badge status-badge--pub">Published</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay">
+  <div class="vc-modal">
+    <div class="vc-modal__header">
+      <div>
+        <div class="vc-modal__title">2019 Volkswagen Golf 1.6 TDI — ABC-123</div>
+        <div class="vc-modal__subtitle">Stock #VG-2019-001 · Added 12 Jan 2024</div>
+      </div>
+      <button class="vc-modal__close">✕</button>
+    </div>
+    <div class="vc-tabs">
+      <div class="vc-tab">Extras</div>
+      <div class="vc-tab">Trade-In</div>
+      <div class="vc-tab">Notes</div>
+      <div class="vc-tab">Details</div>
+      <div class="vc-tab vc-tab--active">Publishing</div>
+    </div>
+    <div class="vc-modal__body">
+      <div style="width:200px;flex-shrink:0;">
+        <div style="width:100%;aspect-ratio:4/3;background:linear-gradient(135deg,#d0e8f4,#a8c8dc);border-radius:3px;display:flex;align-items:center;justify-content:center;color:#8aabbd;flex-direction:column;gap:6px;margin-bottom:10px;">
+          <svg width="40" height="30" viewBox="0 0 40 30"><path d="M5 20 L8 12 L12 10 L28 10 L32 12 L35 20 L35 25 L5 25 Z" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="25" r="3" fill="currentColor"/><circle cx="28" cy="25" r="3" fill="currentColor"/></svg>
+          <span style="font-size:10px;">No photo</span>
+        </div>
+        <table class="spec-table">
+          <tr><td>Make</td><td><strong>Volkswagen</strong></td></tr>
+          <tr><td>Model</td><td>Golf 1.6 TDI</td></tr>
+          <tr><td>Year</td><td>2019</td></tr>
+          <tr><td>Mileage</td><td>78,200 km</td></tr>
+          <tr><td>Fuel</td><td>Diesel</td></tr>
+          <tr><td>Price</td><td><strong>€14,500</strong></td></tr>
+        </table>
+      </div>
+      <div style="flex:1;"><div class="pub-panel">
+          <div class="pub-panel__header">
+            <span class="pub-panel__title">⟳ Publishing… (2/4)</span>
+          </div>
+          <div class="pub-panel__body">
+            <div style="margin-bottom:10px;">
+              <div class="overall-progress"><div class="overall-progress__fill" style="width:50%;"></div></div>
+              <div style="font-size:10.5px;color:#5a7080;margin-top:3px;text-align:right;">50%</div>
+            </div>
+            <div class="ch-row"><span class="ch-dot ch-dot--published"></span><div><div class="ch-name">Auto24</div><div class="ch-status-text ch-status-text--pub">✓ Published</div></div></div>
+            <div class="ch-row"><span class="ch-dot ch-dot--published"></span><div><div class="ch-name">Mobile.de</div><div class="ch-status-text ch-status-text--pub">✓ Published</div></div></div>
+            <div class="ch-row"><span class="ch-dot ch-dot--pending"></span><div><div class="ch-name">SS.lv</div><div class="ch-status-text ch-status-text--pend">⟳ Sending…</div></div></div>
+            <div class="ch-row"><span class="ch-dot ch-dot--unpublished"></span><div><div class="ch-name">Autoplius</div><div class="ch-status-text ch-status-text--unpub">Waiting…</div></div></div>
+          </div>
+          <div class="pub-panel__footer">
+            <button class="jq-btn jq-btn--disabled" disabled>Please wait…</button>
+          </div>
+        </div></div>
+    </div>
+    <div class="vc-modal__footer">
+      <button class="jq-btn">Close</button>
+      <div style="flex:1;"></div>
+      <span style="font-size:10.5px;color:#5a7080;">State: A4 · In Progress</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

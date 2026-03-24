@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modera Salesfront — Used Cars</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+:root {
+  --nav-dark: #263344;
+  --tab-bg: #3a8fad;
+  --tab-active: #4fb3d4;
+  --page-bg: #eaf0f5;
+  --white: #ffffff;
+  --border: #d5dde6;
+  --border-light: #e8edf2;
+  --text-main: #2d3a47;
+  --text-muted: #6b7a8d;
+  --text-small: #8a96a3;
+  --accent: #4fb3d4;
+  --accent-dark: #3a8fad;
+  --status-pub: #2e9c5a;
+  --status-pend: #d08c20;
+  --status-err: #c94040;
+  --status-unpub: #8a96a3;
+}
+html, body { height: 100%; overflow: hidden; }
+body { background: var(--page-bg); font-size: 13px; color: var(--text-main); display: flex; flex-direction: column; }
+
+/* BAR 1: логотип + dealer info + модульная навигация */
+.top-nav { background: var(--nav-dark); height: 36px; display: flex; align-items: stretch; padding: 0; gap: 0; flex-shrink: 0; }
+.top-nav .logo { font-size: 15px; color: #fff; font-weight: 300; letter-spacing: 0.5px; padding: 0 12px; display: flex; align-items: center; white-space: nowrap; }
+.top-nav .logo span { font-weight: 600; color: #5dd4f4; }
+.dealer-info { display: flex; align-items: center; gap: 6px; padding: 0 10px; border-left: 1px solid rgba(255,255,255,0.12); border-right: 1px solid rgba(255,255,255,0.12); }
+.dealer-name { font-size: 11px; color: rgba(255,255,255,0.45); white-space: nowrap; }
+.top-nav-links { display: flex; align-items: stretch; flex: 1; }
+.top-nav-link { color: rgba(255,255,255,0.65); font-size: 11.5px; padding: 0 9px; display: flex; align-items: center; gap: 5px; cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; }
+.top-nav-link:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.top-nav-link.active { color: #fff; border-bottom-color: #5dd4f4; }
+.top-nav-right { display: flex; align-items: stretch; }
+.notif-btn { color: rgba(255,255,255,0.55); font-size: 11px; cursor: pointer; padding: 0 10px; display: flex; align-items: center; gap: 5px; border-left: 1px solid rgba(255,255,255,0.12); }
+.notif-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.notif-count { background: #e74c3c; color: #fff; font-size: 9px; font-weight: 700; padding: 1px 4px; border-radius: 8px; }
+.user-badge { color: rgba(255,255,255,0.8); font-size: 11.5px; display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 0 10px; border-left: 1px solid rgba(255,255,255,0.12); }
+.user-avatar { width: 22px; height: 22px; border-radius: 50%; background: #4fb3d4; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: #fff; }
+.exit-btn { color: rgba(255,255,255,0.45); font-size: 11px; cursor: pointer; padding: 0 10px; border-left: 1px solid rgba(255,255,255,0.12); display: flex; align-items: center; }
+.exit-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+
+/* BAR 2: голубые табы — подразделы модуля Cars */
+.sub-nav { background: var(--tab-bg); height: 34px; display: flex; align-items: stretch; padding: 0 12px; gap: 2px; flex-shrink: 0; }
+.sub-tab { color: rgba(255,255,255,0.75); font-size: 12px; padding: 0 12px; display: flex; align-items: center; gap: 5px; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+.sub-tab:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.sub-tab.active { color: #fff; border-bottom-color: #fff; background: rgba(255,255,255,0.12); }
+.sub-tab .badge { background: rgba(255,255,255,0.25); color: #fff; font-size: 10px; padding: 1px 5px; border-radius: 8px; font-weight: 600; }
+
+/* Channels: умные точки с overflow */
+.ch-dots-wrap { display: flex; flex-direction: column; gap: 2px; }
+.ch-dots-row { display: flex; gap: 3px; align-items: center; }
+.pub-dot { width: 8px; height: 8px; border-radius: 50%; cursor: pointer; flex-shrink: 0; transition: transform 0.1s; }
+.pub-dot:hover { transform: scale(1.5); }
+.pub-dot.published { background: var(--status-pub); }
+.pub-dot.pending { background: var(--status-pend); }
+.pub-dot.error { background: var(--status-err); }
+.pub-dot.unpublished { background: #ccd3db; }
+.ch-overflow { font-size: 10px; color: var(--accent-dark); background: #ddf0f8; border-radius: 8px; padding: 0 5px; line-height: 16px; cursor: default; white-space: nowrap; font-weight: 600; }
+.ch-summary { font-size: 10px; color: var(--text-muted); white-space: nowrap; }
+.ch-summary.err { color: var(--status-err); }
+.ch-summary.pend { color: var(--status-pend); }
+.ch-summary.ok { color: var(--status-pub); }
+
+
+
+.toolbar { background: var(--white); border-bottom: 1px solid var(--border-light); padding: 6px 12px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.toolbar-label { font-size: 11.5px; color: var(--text-muted); margin-right: 4px; }
+.filter-btn { font-size: 11.5px; color: var(--text-muted); border: 1px solid var(--border); background: var(--white); padding: 3px 10px; border-radius: 3px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+.filter-btn:hover { border-color: var(--accent); color: var(--accent-dark); }
+.filter-btn.active { background: #e8f5fb; border-color: var(--accent); color: var(--accent-dark); }
+.search-box { border: 1px solid var(--border); border-radius: 3px; padding: 3px 8px; font-size: 11.5px; width: 180px; outline: none; color: var(--text-main); }
+.search-box:focus { border-color: var(--accent); }
+
+.main-layout { display: flex; flex: 1; min-height: 0; }
+
+.table-area { flex: 1; min-width: 0; background: var(--white); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+.table-scroll { flex: 1; overflow-y: auto; }
+
+.table-header { display: grid; grid-template-columns: 28px 1fr 110px 130px 110px 90px 110px; align-items: center; background: #f5f8fb; border-bottom: 1px solid var(--border); padding: 0 10px; height: 30px; font-size: 11px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; gap: 4px; position: sticky; top: 0; z-index: 1; }
+.table-row { display: grid; grid-template-columns: 28px 1fr 110px 130px 110px 90px 110px; align-items: center; padding: 0 10px; min-height: 52px; border-bottom: 1px solid var(--border-light); cursor: pointer; gap: 4px; }
+.table-row:hover { background: #f0f6fb; }
+.table-row.selected { background: #e8f4fb; }
+
+.cb { width: 14px; height: 14px; cursor: pointer; accent-color: var(--accent); }
+.model-name { font-size: 12.5px; font-weight: 500; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.model-desc { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+.model-vin { font-size: 10.5px; color: var(--text-small); margin-top: 1px; font-family: monospace; }
+.price-cell { font-size: 13px; font-weight: 500; white-space: nowrap; }
+.price-old { font-size: 11px; color: var(--text-small); text-decoration: line-through; }
+.vin-cell { font-size: 11px; color: var(--text-muted); font-family: monospace; }
+.year-cell { font-size: 12px; }
+.pub-cell { display: flex; flex-direction: column; gap: 2px; }
+.pub-dots { display: flex; gap: 3px; flex-wrap: nowrap; align-items: center; }
+.pub-count { font-size: 10px; color: var(--text-muted); }
+.actions-cell { display: flex; gap: 4px; align-items: center; }
+.action-btn { font-size: 10.5px; border: 1px solid var(--border); background: var(--white); padding: 2px 7px; border-radius: 3px; cursor: pointer; color: var(--text-muted); white-space: nowrap; }
+.action-btn:hover { border-color: var(--accent); color: var(--accent-dark); background: #f0f8fc; }
+.action-btn.pub { border-color: #b8dce8; color: var(--accent-dark); background: #ebf6fb; }
+.action-btn.pub:hover { background: #d4edf7; }
+
+.pagination-bar { background: #f5f8fb; border-top: 1px solid var(--border); padding: 6px 12px; display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-muted); flex-shrink: 0; }
+.page-btn { border: 1px solid var(--border); background: var(--white); width: 24px; height: 24px; border-radius: 3px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text-muted); }
+.page-btn:hover { border-color: var(--accent); color: var(--accent-dark); }
+.page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.per-page-select { border: 1px solid var(--border); border-radius: 3px; padding: 2px 4px; font-size: 11.5px; color: var(--text-muted); outline: none; }
+.total-count { margin-left: auto; }
+
+.right-sidebar { width: 220px; flex-shrink: 0; background: var(--white); padding: 10px; overflow-y: auto; }
+.sidebar-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border-light); }
+.sidebar-search { width: 100%; border: 1px solid var(--border); border-radius: 3px; padding: 4px 8px; font-size: 11.5px; margin-bottom: 10px; outline: none; color: var(--text-main); }
+.sidebar-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+.model-filter-item { display: flex; align-items: center; gap: 8px; padding: 5px 4px; border-radius: 3px; cursor: pointer; }
+.model-filter-item:hover { background: #f0f6fb; }
+.model-filter-item.active { background: #e8f4fb; }
+.model-thumb { width: 44px; height: 28px; background: #f5f8fb; border-radius: 3px; border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.model-filter-name { font-size: 12px; color: var(--text-main); flex: 1; }
+.model-filter-cnt { font-size: 10.5px; background: #eaf1f7; color: var(--text-muted); padding: 1px 5px; border-radius: 8px; }
+
+/* PUBLISH PANEL */
+.pub-panel-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: center; justify-content: center; z-index: 100; }
+.pub-panel-backdrop.open { display: flex; }
+.pub-panel { background: var(--white); border-radius: 4px; width: 520px; max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+.pub-panel-header { background: var(--tab-bg); color: #fff; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; border-radius: 4px 4px 0 0; }
+.pub-panel-title { font-size: 13.5px; font-weight: 500; }
+.pub-panel-subtitle { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+.pub-close { background: none; border: none; color: #fff; font-size: 18px; cursor: pointer; opacity: 0.7; line-height: 1; }
+.pub-panel-body { padding: 12px 14px; }
+.channel-row { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 3px; border-bottom: 1px solid var(--border-light); }
+.channel-row:hover { background: #f5f9fc; }
+.channel-cb { accent-color: var(--accent); width: 13px; height: 13px; cursor: pointer; }
+.channel-name { font-size: 12.5px; font-weight: 500; flex: 1; color: var(--text-main); }
+.channel-validation { font-size: 10.5px; color: var(--text-muted); }
+.ch-status { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; padding: 2px 7px; border-radius: 2px; font-weight: 500; white-space: nowrap; }
+.ch-status.published { background: #e6f4ea; color: #2e6e40; }
+.ch-status.pending { background: #fff0d6; color: #8a5e00; }
+.ch-status.error { background: #fde8e8; color: #a33030; }
+.ch-status.unpublished { background: #f0f2f5; color: #6b7a8d; }
+.ch-status::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.pub-panel-footer { padding: 10px 14px; border-top: 1px solid var(--border-light); display: flex; align-items: center; gap: 8px; background: #fafbfc; border-radius: 0 0 4px 4px; }
+.btn-primary { background: var(--accent-dark); color: #fff; border: none; padding: 6px 16px; border-radius: 3px; font-size: 12.5px; cursor: pointer; font-weight: 500; }
+.btn-primary:hover { background: #2d7fa0; }
+.btn-secondary { background: var(--white); color: var(--text-muted); border: 1px solid var(--border); padding: 6px 14px; border-radius: 3px; font-size: 12.5px; cursor: pointer; }
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent-dark); }
+.pub-select-all { font-size: 11px; color: var(--accent-dark); cursor: pointer; text-decoration: underline; }
+.validation-bar { height: 3px; background: #e3eaf0; border-radius: 2px; margin-top: 2px; }
+.validation-fill { height: 100%; border-radius: 2px; background: var(--accent); }
+.validation-fill.good { background: #5cb85c; }
+.validation-fill.warn { background: #e8893a; }
+.section-divider { padding: 6px 14px 4px; font-size: 10px; color: var(--text-small); text-transform: uppercase; letter-spacing: 0.5px; background: #f5f8fb; border-bottom: 1px solid var(--border-light); border-top: 1px solid var(--border-light); }
+.channel-error-msg { font-size: 10px; color: var(--status-err); display: flex; align-items: center; gap: 3px; margin-top: 3px; }
+</style>
+</head>
+<body>
+
+<!-- BAR 1: логотип + dealer + модули приложения -->
+<div class="top-nav">
+  <div class="logo">modera <span>salesfront</span></div>
+  <div class="dealer-info">
+    <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1.3"><rect x="1" y="5" width="12" height="8" rx="1"/><path d="M4 5V3a3 3 0 016 0v2"/></svg>
+    <span class="dealer-name">Dealer salesfront</span>
+  </div>
+  <div class="top-nav-links">
+    <div class="top-nav-link">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="rgba(255,255,255,0.6)"><rect x="0.5" y="0.5" width="4.5" height="4.5" rx="0.5"/><rect x="7" y="0.5" width="4.5" height="4.5" rx="0.5"/><rect x="0.5" y="7" width="4.5" height="4.5" rx="0.5"/><rect x="7" y="7" width="4.5" height="4.5" rx="0.5"/></svg>
+      Dashboard
+    </div>
+    <div class="top-nav-link">Pipe</div>
+    <div class="top-nav-link active">Cars</div>
+    <div class="top-nav-link">Used cars <span style="background:rgba(255,255,255,0.2);color:#fff;font-size:9px;padding:0 4px;border-radius:7px;margin-left:2px;">74</span></div>
+    <div class="top-nav-link">Customers</div>
+    <div class="top-nav-link">Tools</div>
+    <div class="top-nav-link">Trade‑In</div>
+    <div class="top-nav-link">Test Drive</div>
+    <div class="top-nav-link">Sales</div>
+    <div class="top-nav-link">Chat</div>
+    <div class="top-nav-link">Cleaner</div>
+    <div class="top-nav-link">Queue</div>
+  </div>
+  <div class="top-nav-right">
+    <div class="notif-btn">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 1a4 4 0 014 4v2l1 2H1l1-2V5a4 4 0 014-4zM4.5 9.5a1.5 1.5 0 003 0"/></svg>
+      <span class="notif-count">3</span>
+    </div>
+    <div class="user-badge">
+      <div class="user-avatar">JS</div>
+      John Smith
+    </div>
+    <div class="exit-btn">Exit</div>
+  </div>
+</div>
+
+<!-- SUB NAV — inventory types within Cars module -->
+<div class="sub-nav">
+  <div class="sub-tab">Importer Stock</div>
+  <div class="sub-tab">Dealer Stock <span class="badge">23</span></div>
+  <div class="sub-tab active">Used Cars <span class="badge">74</span></div>
+  <div class="sub-tab">Unsettled <span class="badge">5</span></div>
+  <div class="sub-tab">Configurator <span class="badge">112</span></div>
+  <div class="sub-tab">Offline <span class="badge">8</span></div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <span class="toolbar-label">Show only:</span>
+  <div class="filter-btn active">My vehicles</div>
+  <div class="filter-btn">Our orders</div>
+  <div class="filter-btn">Factory‑filled</div>
+  <div class="filter-btn">Dealer‑filled</div>
+  <div class="filter-btn">Services</div>
+  <div style="flex:1;"></div>
+  <input class="search-box" type="text" placeholder="Search by VIN or model..." />
+  <div class="filter-btn">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 2h10M3 6h6M5 10h2"/></svg>
+    Filters
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="main-layout">
+  <div class="table-area">
+    <div class="table-scroll">
+      <div class="table-header">
+        <div></div>
+        <div>Model / Description</div>
+        <div>Price</div>
+        <div>VIN</div>
+        <div>Year / km</div>
+        <div>Channels</div>
+        <div>Actions</div>
+      </div>
+
+      <!-- Row 1 -->
+      <div class="table-row selected" onclick="openPub('Volkswagen Golf 1.6 TDI Comfortline','WVW12345678901234')">
+        <input type="checkbox" class="cb" checked onclick="event.stopPropagation()"/>
+        <div>
+          <div class="model-name">Volkswagen Golf 1.6 TDI Comfortline</div>
+          <div class="model-desc">Silver / Diesel / Manual / 5-door Hatchback</div>
+          <div class="model-vin">WVW12345678901234</div>
+        </div>
+        <div class="price-cell">14 990 €<br><span class="price-old">15 900 €</span></div>
+        <div class="vin-cell">WVW1234<br>5678901</div>
+        <div class="year-cell">2019<br><span style="color:var(--text-muted)">87 400 km</span></div>
+        <div class="pub-cell" data-channels='[{"s":"published","n":"Auto24"},{"s":"published","n":"Mobile.de"},{"s":"published","n":"SS.lv"},{"s":"pending","n":"Autoplius"},{"s":"unpublished","n":"City24"},{"s":"unpublished","n":"OLX"},{"s":"published","n":"Nettiauto"},{"s":"error","n":"Autoscout24"}]'></div>
+        <div class="actions-cell">
+          <button class="action-btn pub" onclick="event.stopPropagation();openPub('VW Golf 1.6 TDI','WVW12345678901234')">Publish</button>
+          <button class="action-btn" onclick="event.stopPropagation()">Edit</button>
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="table-row" onclick="openPub('Toyota RAV4 2.5 Hybrid AWD','JTMBK3FV8LD012345')">
+        <input type="checkbox" class="cb" onclick="event.stopPropagation()"/>
+        <div>
+          <div class="model-name">Toyota RAV4 2.5 Hybrid AWD</div>
+          <div class="model-desc">Pearl White / Hybrid / CVT / SUV</div>
+          <div class="model-vin">JTMBK3FV8LD012345</div>
+        </div>
+        <div class="price-cell">31 500 €</div>
+        <div class="vin-cell">JTMBK3<br>FV8LD0</div>
+        <div class="year-cell">2021<br><span style="color:var(--text-muted)">42 100 km</span></div>
+        <div class="pub-cell" data-channels='[{"s":"published","n":"Auto24"},{"s":"error","n":"Mobile.de"},{"s":"unpublished","n":"SS.lv"},{"s":"unpublished","n":"Autoplius"},{"s":"error","n":"City24"}]'></div>
+        <div class="actions-cell">
+          <button class="action-btn pub" style="border-color:#f5b8b8;color:var(--status-err);background:#fef0f0;" onclick="event.stopPropagation();openPub('Toyota RAV4 2.5 Hybrid AWD','JTMBK3FV8LD012345')">Fix errors</button>
+          <button class="action-btn" onclick="event.stopPropagation()">Edit</button>
+        </div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="table-row" onclick="openPub('BMW 320d xDrive Sport Line','3MW5R1J07N8C00432')">
+        <input type="checkbox" class="cb" onclick="event.stopPropagation()"/>
+        <div>
+          <div class="model-name">BMW 320d xDrive Sport Line</div>
+          <div class="model-desc">Mineral Grey / Diesel / Automatic / 4-door Sedan</div>
+          <div class="model-vin">3MW5R1J07N8C00432</div>
+        </div>
+        <div class="price-cell">28 900 €<br><span class="price-old">29 900 €</span></div>
+        <div class="vin-cell">3MW5R1<br>J07N8C</div>
+        <div class="year-cell">2022<br><span style="color:var(--text-muted)">31 200 km</span></div>
+        <div class="pub-cell" data-channels='[{"s":"unpublished","n":"Auto24"},{"s":"unpublished","n":"Mobile.de"},{"s":"unpublished","n":"SS.lv"}]'></div>
+        <div class="actions-cell">
+          <button class="action-btn pub" onclick="event.stopPropagation();openPub('BMW 320d xDrive','3MW5R1J07N8C00432')">Publish</button>
+          <button class="action-btn" onclick="event.stopPropagation()">Edit</button>
+        </div>
+      </div>
+
+      <!-- Row 4 -->
+      <div class="table-row" onclick="openPub('Mercedes-Benz C 220d AMG Line','WDD2050421R394772')">
+        <input type="checkbox" class="cb" onclick="event.stopPropagation()"/>
+        <div>
+          <div class="model-name">Mercedes-Benz C 220d AMG Line</div>
+          <div class="model-desc">Obsidian Black / Diesel / 9G-Tronic / Estate</div>
+          <div class="model-vin">WDD2050421R394772</div>
+        </div>
+        <div class="price-cell">38 750 €</div>
+        <div class="vin-cell">WDD205<br>0421R3</div>
+        <div class="year-cell">2020<br><span style="color:var(--text-muted)">56 800 km</span></div>
+        <div class="pub-cell" data-channels='[{"s":"published","n":"Auto24"},{"s":"published","n":"Mobile.de"},{"s":"published","n":"SS.lv"},{"s":"published","n":"Autoplius"},{"s":"published","n":"City24"},{"s":"published","n":"OLX"},{"s":"published","n":"Nettiauto"},{"s":"published","n":"Autoscout24"},{"s":"published","n":"Autotrader"},{"s":"published","n":"Cargurus"},{"s":"published","n":"Caravell"},{"s":"published","n":"Autovit"}]'></div>
+        <div class="actions-cell">
+          <button class="action-btn" style="border-color:#b5d9b5;color:#2e6e40;background:#f0f9f0;" onclick="event.stopPropagation();openPub('Mercedes C 220d','WDD2050421R394772')">Manage</button>
+          <button class="action-btn" onclick="event.stopPropagation()">Edit</button>
+        </div>
+      </div>
+
+      <!-- Row 5 -->
+      <div class="table-row" onclick="openPub('Audi A4 2.0 TDI S-Line','WAUZZZ8K9AA123456')">
+        <input type="checkbox" class="cb" onclick="event.stopPropagation()"/>
+        <div>
+          <div class="model-name">Audi A4 2.0 TDI S-Line</div>
+          <div class="model-desc">Nano Grey / Diesel / S-tronic / 4-door Sedan</div>
+          <div class="model-vin">WAUZZZ8K9AA123456</div>
+        </div>
+        <div class="price-cell">22 400 €</div>
+        <div class="vin-cell">WAUZZZ<br>8K9AA1</div>
+        <div class="year-cell">2018<br><span style="color:var(--text-muted)">118 400 km</span></div>
+        <div class="pub-cell" data-channels='[{"s":"published","n":"Auto24"},{"s":"published","n":"Mobile.de"},{"s":"pending","n":"SS.lv"},{"s":"pending","n":"Autoplius"},{"s":"unpublished","n":"City24"},{"s":"pending","n":"OLX"},{"s":"unpublished","n":"Nettiauto"}]'></div>
+        <div class="actions-cell">
+          <button class="action-btn pub" onclick="event.stopPropagation();openPub('Audi A4 2.0 TDI','WAUZZZ8K9AA123456')">Publish</button>
+          <button class="action-btn" onclick="event.stopPropagation()">Edit</button>
+        </div>
+      </div>
+
+      <!-- Row 6 -->
+      <div class="table-row" onclick="openPub('Skoda Octavia 1.5 TSI Style','TMBJJ7NE5L0127890')">
+        <input type="checkbox" class="cb" onclick="event.stopPropagation()"/>
+        <div>
+          <div class="model-name">Skoda Octavia 1.5 TSI Style</div>
+          <div class="model-desc">Moon White / Petrol / DSG7 / 5-door Estate</div>
+          <div class="model-vin">TMBJJ7NE5L0127890</div>
+        </div>
+        <div class="price-cell">18 200 €<br><span class="price-old">19 500 €</span></div>
+        <div class="vin-cell">TMBJJ7<br>NE5L01</div>
+        <div class="year-cell">2020<br><span style="color:var(--text-muted)">68 300 km</span></div>
+        <div class="pub-cell" data-channels='[{"s":"unpublished","n":"Auto24"},{"s":"unpublished","n":"Mobile.de"},{"s":"unpublished","n":"SS.lv"},{"s":"error","n":"Autoplius"},{"s":"unpublished","n":"City24"}]'></div>
+        <div class="actions-cell">
+          <button class="action-btn pub" onclick="event.stopPropagation();openPub('Skoda Octavia','TMBJJ7NE5L0127890')">Publish</button>
+          <button class="action-btn" onclick="event.stopPropagation()">Edit</button>
+        </div>
+      </div>
+
+      <!-- Row 7 -->
+      <div class="table-row" onclick="openPub('Ford Focus 1.0 EcoBoost Titanium','1FADP3F27JL234987')">
+        <input type="checkbox" class="cb" onclick="event.stopPropagation()"/>
+        <div>
+          <div class="model-name">Ford Focus 1.0 EcoBoost Titanium</div>
+          <div class="model-desc">Deep Impact Blue / Petrol / Manual / 5-door Hatchback</div>
+          <div class="model-vin">1FADP3F27JL234987</div>
+        </div>
+        <div class="price-cell">12 800 €</div>
+        <div class="vin-cell">1FADP3<br>F27JL2</div>
+        <div class="year-cell">2017<br><span style="color:var(--text-muted)">143 200 km</span></div>
+        <div class="pub-cell" data-channels='[{"s":"published","n":"Auto24"},{"s":"unpublished","n":"Mobile.de"},{"s":"unpublished","n":"SS.lv"},{"s":"unpublished","n":"Autoplius"},{"s":"unpublished","n":"City24"}]'></div>
+        <div class="actions-cell">
+          <button class="action-btn pub" onclick="event.stopPropagation();openPub('Ford Focus 1.0','1FADP3F27JL234987')">Publish</button>
+          <button class="action-btn" onclick="event.stopPropagation()">Edit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="pagination-bar">
+      <span>Page</span>
+      <button class="page-btn">«</button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn">»</button>
+      <span>of 6</span>
+      <div style="width:1px;height:16px;background:var(--border);margin:0 6px;"></div>
+      <span>Show</span>
+      <select class="per-page-select"><option>10</option><option selected>15</option><option>25</option><option>50</option></select>
+      <span>per page</span>
+      <div class="total-count">Displaying 1–7 of 74 vehicles</div>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDEBAR -->
+  <div class="right-sidebar">
+    <div class="sidebar-title">Advanced filter</div>
+    <input class="sidebar-search" type="text" placeholder="Type here to filter by keyword" />
+    <div class="sidebar-label">Filter by model</div>
+    <div class="model-filter-item active">
+      <div class="model-thumb"><svg width="36" height="22" viewBox="0 0 36 22" fill="none"><path d="M4 15 Q6 10 10 9 L14 8 Q16 5 20 5 L26 5 Q30 6 32 9 L34 15 Q34 17 32 17 L4 17 Q2 17 4 15Z" fill="#c5d5e5"/><ellipse cx="10" cy="17" rx="3" ry="3" fill="#8a9aaa"/><ellipse cx="26" cy="17" rx="3" ry="3" fill="#8a9aaa"/></svg></div>
+      <div class="model-filter-name">Volkswagen</div><div class="model-filter-cnt">12</div>
+    </div>
+    <div class="model-filter-item">
+      <div class="model-thumb"><svg width="36" height="22" viewBox="0 0 36 22" fill="none"><path d="M3 15 Q5 9 9 8 L15 7 Q17 4 21 4 L27 4 Q31 5 33 9 L35 15 Q35 17 32 17 L4 17 Q1 17 3 15Z" fill="#b8d4b0"/><ellipse cx="9" cy="17" rx="3" ry="3" fill="#8aaa88"/><ellipse cx="27" cy="17" rx="3" ry="3" fill="#8aaa88"/></svg></div>
+      <div class="model-filter-name">Toyota</div><div class="model-filter-cnt">8</div>
+    </div>
+    <div class="model-filter-item">
+      <div class="model-thumb"><svg width="36" height="22" viewBox="0 0 36 22" fill="none"><path d="M4 15 Q7 8 12 7 L18 6 Q20 3 24 3 L28 3 Q32 5 34 10 L35 15 Q35 17 32 17 L4 17 Q2 17 4 15Z" fill="#d5bfaa"/><ellipse cx="10" cy="17" rx="3" ry="3" fill="#aa9888"/><ellipse cx="27" cy="17" rx="3" ry="3" fill="#aa9888"/></svg></div>
+      <div class="model-filter-name">BMW</div><div class="model-filter-cnt">11</div>
+    </div>
+    <div class="model-filter-item">
+      <div class="model-thumb"><svg width="36" height="22" viewBox="0 0 36 22" fill="none"><path d="M5 15 Q8 9 13 8 L19 7 Q21 4 25 4 L29 4 Q32 6 34 11 L35 15 Q35 17 32 17 L5 17 Q3 17 5 15Z" fill="#c0c0d8"/><ellipse cx="11" cy="17" rx="3" ry="3" fill="#8888aa"/><ellipse cx="28" cy="17" rx="3" ry="3" fill="#8888aa"/></svg></div>
+      <div class="model-filter-name">Mercedes-Benz</div><div class="model-filter-cnt">9</div>
+    </div>
+    <div class="model-filter-item">
+      <div class="model-thumb"><svg width="36" height="22" viewBox="0 0 36 22" fill="none"><path d="M3 15 Q5 10 9 9 L13 8 Q15 5 19 5 L25 5 Q29 6 31 9 L33 15 Q33 17 30 17 L4 17 Q2 17 3 15Z" fill="#d4c4a0"/><ellipse cx="9" cy="17" rx="3" ry="3" fill="#aa9870"/><ellipse cx="25" cy="17" rx="3" ry="3" fill="#aa9870"/></svg></div>
+      <div class="model-filter-name">Audi</div><div class="model-filter-cnt">7</div>
+    </div>
+    <div class="model-filter-item">
+      <div class="model-thumb"><svg width="36" height="22" viewBox="0 0 36 22" fill="none"><path d="M4 15 Q6 10 10 9 L15 8 Q17 5 21 5 L27 5 Q31 6 33 9 L34 15 Q34 17 31 17 L4 17 Q2 17 4 15Z" fill="#aad4aa"/><ellipse cx="10" cy="17" rx="3" ry="3" fill="#78a878"/><ellipse cx="27" cy="17" rx="3" ry="3" fill="#78a878"/></svg></div>
+      <div class="model-filter-name">Skoda</div><div class="model-filter-cnt">10</div>
+    </div>
+    <div class="model-filter-item">
+      <div class="model-thumb"><svg width="36" height="22" viewBox="0 0 36 22" fill="none"><path d="M3 14 Q5 9 9 8 L13 7 Q15 4 19 4 L25 4 Q28 5 30 9 L32 14 Q32 17 29 17 L4 17 Q2 17 3 14Z" fill="#b0c8d8"/><ellipse cx="9" cy="17" rx="3" ry="3" fill="#7898a8"/><ellipse cx="25" cy="17" rx="3" ry="3" fill="#7898a8"/></svg></div>
+      <div class="model-filter-name">Ford</div><div class="model-filter-cnt">6</div>
+    </div>
+
+    <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border-light);">
+      <div class="sidebar-label" style="margin-bottom:6px;">Channel status</div>
+      <div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:11.5px;cursor:pointer;">
+        <div class="pub-dot published" style="width:10px;height:10px;flex-shrink:0;"></div> Published <span style="margin-left:auto;color:var(--text-muted);font-size:11px;">31</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:11.5px;cursor:pointer;">
+        <div class="pub-dot pending" style="width:10px;height:10px;flex-shrink:0;"></div> Pending <span style="margin-left:auto;color:var(--text-muted);font-size:11px;">12</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:11.5px;cursor:pointer;">
+        <div class="pub-dot error" style="width:10px;height:10px;flex-shrink:0;"></div> Errors <span style="margin-left:auto;color:var(--text-muted);font-size:11px;">7</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:11.5px;cursor:pointer;">
+        <div class="pub-dot unpublished" style="width:10px;height:10px;flex-shrink:0;"></div> Not published <span style="margin-left:auto;color:var(--text-muted);font-size:11px;">24</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PUBLISH PANEL -->
+<div class="pub-panel-backdrop" id="pubBackdrop" onclick="closePub(event)">
+  <div class="pub-panel">
+    <div class="pub-panel-header">
+      <div>
+        <div class="pub-panel-title" id="pubTitle">VW Golf 1.6 TDI</div>
+        <div class="pub-panel-subtitle" id="pubVin">VIN: WVW12345678901234 · Select channels to publish</div>
+      </div>
+      <button class="pub-close" onclick="document.getElementById('pubBackdrop').classList.remove('open')">×</button>
+    </div>
+    <div class="pub-panel-body">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <span class="pub-select-all" onclick="document.querySelectorAll('.channel-cb').forEach(c=>c.checked=true)">Select all</span>
+        <span style="color:#d5dde6;font-size:12px;">|</span>
+        <span class="pub-select-all" onclick="document.querySelectorAll('.channel-cb').forEach(c=>c.checked=false)">Deselect all</span>
+        <div style="flex:1;"></div>
+        <span style="font-size:11px;color:var(--text-muted);">5 channels available</span>
+      </div>
+      <div class="section-divider">Active channels</div>
+      <div class="channel-row">
+        <input type="checkbox" class="channel-cb" checked/>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;"><span class="channel-name">Auto24</span><span style="font-size:10px;background:#f0f2f5;color:var(--text-muted);padding:1px 5px;border-radius:2px;">auto24.ee</span></div>
+          <div style="margin-top:4px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;"><span class="channel-validation">Profile completeness</span><span style="font-size:10.5px;font-weight:500;color:#2e9c5a;">96%</span></div><div class="validation-bar"><div class="validation-fill good" style="width:96%"></div></div></div>
+        </div>
+        <span class="ch-status published">Published</span>
+      </div>
+      <div class="channel-row">
+        <input type="checkbox" class="channel-cb" checked/>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;"><span class="channel-name">Mobile.de</span><span style="font-size:10px;background:#f0f2f5;color:var(--text-muted);padding:1px 5px;border-radius:2px;">mobile.de</span></div>
+          <div style="margin-top:4px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;"><span class="channel-validation">Profile completeness</span><span style="font-size:10.5px;font-weight:500;color:#2e9c5a;">100%</span></div><div class="validation-bar"><div class="validation-fill good" style="width:100%"></div></div></div>
+        </div>
+        <span class="ch-status published">Published</span>
+      </div>
+      <div class="channel-row">
+        <input type="checkbox" class="channel-cb" checked/>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;"><span class="channel-name">SS.lv</span><span style="font-size:10px;background:#f0f2f5;color:var(--text-muted);padding:1px 5px;border-radius:2px;">ss.lv</span></div>
+          <div style="margin-top:4px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;"><span class="channel-validation">Profile completeness</span><span style="font-size:10.5px;font-weight:500;color:#d08c20;">74%</span></div><div class="validation-bar"><div class="validation-fill warn" style="width:74%"></div></div></div>
+        </div>
+        <span class="ch-status published">Published</span>
+      </div>
+      <div class="section-divider">Pending / Not published</div>
+      <div class="channel-row">
+        <input type="checkbox" class="channel-cb" checked/>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;"><span class="channel-name">Autoplius</span><span style="font-size:10px;background:#f0f2f5;color:var(--text-muted);padding:1px 5px;border-radius:2px;">autoplius.lt</span></div>
+          <div style="margin-top:4px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;"><span class="channel-validation">Requires 100% to publish</span><span style="font-size:10.5px;font-weight:500;color:#d08c20;">88%</span></div><div class="validation-bar"><div class="validation-fill warn" style="width:88%"></div></div><div class="channel-error-msg">⚠ Missing: Interior color, number of doors</div></div>
+        </div>
+        <span class="ch-status pending">Pending</span>
+      </div>
+      <div class="channel-row">
+        <input type="checkbox" class="channel-cb"/>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;"><span class="channel-name">City24</span><span style="font-size:10px;background:#f0f2f5;color:var(--text-muted);padding:1px 5px;border-radius:2px;">city24.ee</span></div>
+          <div style="margin-top:4px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;"><span class="channel-validation">Profile completeness</span><span style="font-size:10.5px;font-weight:500;color:#2e9c5a;">91%</span></div><div class="validation-bar"><div class="validation-fill good" style="width:91%"></div></div></div>
+        </div>
+        <span class="ch-status unpublished">Not published</span>
+      </div>
+    </div>
+    <div class="pub-panel-footer">
+      <button class="btn-primary" onclick="document.getElementById('pubBackdrop').classList.remove('open')">Publish selected</button>
+      <button class="btn-secondary" onclick="document.getElementById('pubBackdrop').classList.remove('open')">Cancel</button>
+      <div style="flex:1;"></div>
+      <span style="font-size:11px;color:var(--text-muted);">4 of 5 channels selected</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const MAX_DOTS = 8; // максимум точек в одной строке
+
+function renderChannelCells() {
+  document.querySelectorAll('.pub-cell[data-channels]').forEach(cell => {
+    const channels = JSON.parse(cell.dataset.channels);
+    const total = channels.length;
+    const counts = { published: 0, pending: 0, error: 0, unpublished: 0 };
+    channels.forEach(c => counts[c.s]++);
+
+    // Точки: показываем до MAX_DOTS, остальные — "+N"
+    const dotsRow = document.createElement('div');
+    dotsRow.className = 'pub-dots';
+    const visible = channels.slice(0, MAX_DOTS);
+    const hidden = total - MAX_DOTS;
+    visible.forEach(c => {
+      const d = document.createElement('div');
+      d.className = 'pub-dot ' + c.s;
+      d.title = c.n + ': ' + c.s;
+      dotsRow.appendChild(d);
+    });
+    if (hidden > 0) {
+      const more = document.createElement('span');
+      more.className = 'ch-overflow';
+      more.textContent = '+' + hidden;
+      more.title = hidden + ' more channels';
+      dotsRow.appendChild(more);
+    }
+
+    // Строка-сводка
+    const summary = document.createElement('div');
+    summary.className = 'pub-count';
+    if (counts.error > 0) {
+      summary.className += ' err';
+      let parts = [counts.error + ' error' + (counts.error > 1 ? 's' : '')];
+      if (counts.published > 0) parts.push(counts.published + ' published');
+      summary.textContent = parts.join(' · ');
+      summary.style.color = 'var(--status-err)';
+    } else if (counts.pending > 0) {
+      let parts = [counts.pending + ' pending'];
+      if (counts.published > 0) parts.push(counts.published + ' published');
+      summary.textContent = parts.join(' · ');
+      summary.style.color = 'var(--status-pend)';
+    } else if (counts.published === total) {
+      summary.textContent = 'All ' + total + ' published';
+      summary.style.color = 'var(--status-pub)';
+    } else if (counts.published > 0) {
+      summary.textContent = counts.published + ' of ' + total + ' published';
+    } else {
+      summary.textContent = 'Not published';
+    }
+
+    cell.appendChild(dotsRow);
+    cell.appendChild(summary);
+  });
+}
+
+function openPub(name, vin) {
+  document.getElementById('pubTitle').textContent = name;
+  document.getElementById('pubVin').textContent = 'VIN: ' + vin + ' · Select channels to publish';
+  document.getElementById('pubBackdrop').classList.add('open');
+}
+function closePub(e) {
+  if (e.target === document.getElementById('pubBackdrop')) document.getElementById('pubBackdrop').classList.remove('open');
+}
+
+renderChannelCells();
+</script>
+</body>
+</html>

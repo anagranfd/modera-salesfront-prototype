@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>EP2 · A-5 · Field in Other Tab — Modera Publishing Tool</title>
+<link rel="stylesheet" href="../../prototype/shared/tokens.css">
+<link rel="stylesheet" href="../../prototype/shared/components.css">
+<style>
+html,body{height:100%;overflow:hidden;}
+.page-wrap{display:flex;flex-direction:column;height:100vh;}
+.bg-dimmed{filter:brightness(0.82);pointer-events:none;}
+.modal-overlay{position:fixed;inset:0;background:rgba(20,40,60,0.55);z-index:100;display:flex;align-items:center;justify-content:center;}
+.spec-table{width:100%;font-size:11px;border-collapse:collapse;}
+.spec-table td{padding:3px 0;border-bottom:1px solid #eef2f5;}
+.spec-table td:first-child{color:var(--text-muted);width:45%;}
+.screen-label{position:fixed;top:6px;right:8px;background:rgba(20,40,60,0.8);color:#7de0f8;font-size:10px;padding:2px 8px;border-radius:10px;z-index:400;}
+</style>
+</head>
+<body>
+<div class="screen-label">EP2 · A5 · Field in Other Tab</div>
+<div class="page-wrap">
+  <div class="modera-topnav bg-dimmed">
+    <div class="modera-topnav__logo">MODERA</div>
+    <div class="modera-topnav__module">Salesfront</div>
+    <div class="modera-topnav__right">
+      <span class="pub-status-pill pub-status-pill--idle">Publishing</span>
+      <span class="topnav-icon">🔔</span>
+      <span class="topnav-username">J. Tamm ▾</span>
+    </div>
+  </div>
+  <div class="modera-subnav bg-dimmed">
+    <a class="subnav-tab subnav-tab--active">Inventory</a>
+    <a class="subnav-tab">Customers</a>
+    <a class="subnav-tab">Deals</a>
+  </div>
+  <div style="flex:1;background:var(--page-bg);padding:10px;filter:brightness(0.82);pointer-events:none;overflow:hidden;">
+    <table class="inv-table" style="width:100%;font-size:11px;">
+      <thead><tr>
+        <th style="width:30px;"><input type="checkbox" class="jq-check"></th>
+        <th>Vehicle</th><th>Year</th><th>Reg. no.</th><th>Price</th><th>Channels</th><th>Status</th>
+      </tr></thead>
+      <tbody>
+        <tr><td><input type="checkbox" class="jq-check"></td><td style="font-weight:600;">VW Golf 1.6 TDI</td><td>2019</td><td>ABC-123</td><td>€14,500</td><td><span class="ch-dot ch-dot--unpublished"></span><span class="ch-dot ch-dot--unpublished"></span><span class="ch-dot ch-dot--unpublished"></span></td><td><span class="status-badge status-badge--unpub">Unpublished</span></td></tr>
+        <tr><td><input type="checkbox" class="jq-check"></td><td style="font-weight:600;">Toyota RAV4 2.0</td><td>2021</td><td>XYZ-789</td><td>€28,900</td><td><span class="ch-dot ch-dot--published"></span><span class="ch-dot ch-dot--published"></span><span class="ch-dot ch-dot--published"></span></td><td><span class="status-badge status-badge--pub">Published</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+.builder-layout{display:flex;flex:1;overflow:hidden;}
+.builder-form-col{flex:1;overflow-y:auto;padding:12px;background:var(--content-bg);border-right:1px solid var(--border);}
+.builder-panel-col{width:280px;flex-shrink:0;overflow-y:auto;padding:10px;background:var(--page-bg);}
+.builder-tabs{display:flex;background:linear-gradient(180deg,#ddeef7,#c8dce8);border-bottom:1px solid var(--border-dark);flex-shrink:0;}
+.builder-tab{font-size:11.5px;font-weight:600;padding:5px 14px;cursor:pointer;color:var(--text-muted);border-right:1px solid rgba(0,0,0,0.08);border-bottom:2px solid transparent;margin-bottom:-1px;}
+.builder-tab--active{background:#fff;color:var(--text-main);border-bottom:2px solid #5aaed0;}
+.builder-section{background:#fff;border:1px solid var(--border);border-radius:3px;margin-bottom:10px;}
+.builder-section__head{background:linear-gradient(180deg,#eef6fb,#e0edf5);padding:6px 10px;border-bottom:1px solid var(--border);font-size:11.5px;font-weight:700;color:var(--text-main);}
+.builder-section__body{padding:10px;}
+.field-hint--error{font-size:10px;color:var(--status-err);margin-top:2px;display:flex;align-items:center;gap:3px;}
+</style>
+<div class="modal-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,0);">
+  <div style="display:flex;flex-direction:column;height:100vh;width:100%;position:fixed;inset:0;background:var(--content-bg);">
+    <div class="modera-topnav">
+      <div class="modera-topnav__logo">MODERA</div>
+      <div class="modera-topnav__module">Salesfront</div>
+      <div style="color:rgba(255,255,255,0.5);padding:0 8px;display:flex;align-items:center;font-size:11px;">›</div>
+      <div style="color:rgba(255,255,255,0.9);font-size:11.5px;display:flex;align-items:center;font-weight:600;">Vehicle Builder — VW Golf (ABC-123)</div>
+      <div class="modera-topnav__right">
+        <span class="pub-status-pill pub-status-pill--idle">Publishing</span>
+        <span class="topnav-icon">🔔</span>
+        <span class="topnav-username">J. Tamm ▾</span>
+      </div>
+    </div>
+    <div class="modera-subnav">
+      <a class="subnav-tab">← Inventory</a>
+      <a class="subnav-tab">Vehicle Card</a>
+      <a class="subnav-tab subnav-tab--active">Builder</a>
+    </div>
+    <div style="background:linear-gradient(180deg,#fff3cd,#feeaa0);border-bottom:1px solid #e0c060;padding:7px 10px;font-size:11.5px;color:#7a5010;display:flex;align-items:center;gap:7px;">
+      ⚠ Fill highlighted fields (Details tab) to unlock Autoplius
+      <div style="flex:1;"></div>
+      <button class="jq-btn jq-btn--sm">← Back</button>
+    </div>
+    <div class="builder-tabs"><div class="builder-tab">Basic Info</div><div class="builder-tab builder-tab--active">Details</div><div class="builder-tab">Media</div><div class="builder-tab">Pricing</div><div class="builder-tab">Extras</div></div>
+    <div class="builder-layout">
+      <div class="builder-form-col"><div class="builder-section">
+        <div class="builder-section__head">Additional details</div>
+        <div class="builder-section__body">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+            <div>
+              <label class="jq-label" style="color:#b03030;">Interior color</label>
+              <input class="jq-input builder-form__field--highlighted" placeholder="e.g. Black leather"><div class="field-hint--error">Required by Autoplius</div>
+            </div>
+            <div>
+              <label class="jq-label" style="color:#b03030;">Doors count</label>
+              <select class="jq-select builder-form__field--highlighted"><option value="">Select…</option><option>3</option><option selected>5</option></select><div class="field-hint--error">Required by Autoplius</div>
+            </div>
+            <div><label class="jq-label">Seats</label><input class="jq-input" value="5"></div>
+          </div>
+          <div style="margin-top:8px;">
+            <label class="jq-label">Description</label>
+            <textarea class="jq-textarea" style="height:80px;">Well-maintained one-owner vehicle.</textarea>
+          </div>
+        </div>
+      </div></div>
+      <div class="builder-panel-col">
+        <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Publishing</div>
+        <div class="pub-panel">
+        <div class="pub-panel__header">
+          <div class="pub-panel__title" style="color:#b07820;">⚠ Autoplius: 2 missing</div>
+          <div style="font-size:10px;color:#5aaed0;font-style:italic;margin-top:3px;background:#eef6fb;border-radius:2px;padding:1px 5px;display:inline-block;">← you are here (Details)</div>
+        </div>
+        <div class="pub-panel__body">
+          <div class="ch-row"><span class="ch-dot ch-dot--pending"></span><div><div class="ch-name">Autoplius</div><div style="font-size:10px;color:#b07820;">Interior color, Doors count</div></div></div>
+          <div style="border-top:1px solid #dce8f0;padding-top:6px;margin-top:2px;">
+            <div class="ch-row"><span class="ch-dot ch-dot--published"></span><div><div class="ch-name">Auto24</div><div class="ch-status-text ch-status-text--pub">✓ Ready</div></div></div>
+            <div class="ch-row"><span class="ch-dot ch-dot--published"></span><div><div class="ch-name">Mobile.de</div><div class="ch-status-text ch-status-text--pub">✓ Ready</div></div></div>
+          </div>
+        </div>
+        <div class="pub-panel__footer">
+          <button class="jq-btn">← Back</button>
+          <button class="jq-btn jq-btn--primary">Publish 3 →</button>
+        </div>
+      </div>
+      </div>
+    </div>
+    <div style="background:linear-gradient(180deg,#f0f6fa,#e4edf5);border-top:1px solid var(--border);padding:7px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;">
+      <button class="jq-btn">← Cancel</button>
+      <div style="flex:1;"></div>
+      <span style="font-size:10.5px;color:#5a7080;">State: A5 · Field in Other Tab</span>
+      <button class="jq-btn jq-btn--primary" >Save changes</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

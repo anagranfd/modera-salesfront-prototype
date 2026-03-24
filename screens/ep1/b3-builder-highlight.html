@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>EP1 · B-3 · Builder Highlight — Modera Publishing Tool</title>
+<link rel="stylesheet" href="../../prototype/shared/tokens.css">
+<link rel="stylesheet" href="../../prototype/shared/components.css">
+<style>
+html,body{height:100%;overflow:hidden;}
+.page-wrap{display:flex;flex-direction:column;height:100vh;}
+.bg-dimmed{filter:brightness(0.82);pointer-events:none;}
+.modal-overlay{position:fixed;inset:0;background:rgba(20,40,60,0.55);z-index:100;display:flex;align-items:center;justify-content:center;}
+.spec-table{width:100%;font-size:11px;border-collapse:collapse;}
+.spec-table td{padding:3px 0;border-bottom:1px solid #eef2f5;}
+.spec-table td:first-child{color:var(--text-muted);width:45%;}
+.screen-label{position:fixed;top:6px;right:8px;background:rgba(20,40,60,0.8);color:#7de0f8;font-size:10px;padding:2px 8px;border-radius:10px;z-index:400;}
+</style>
+</head>
+<body>
+<div class="screen-label">EP1 · B3 · Builder Highlight</div>
+<div class="page-wrap">
+  <div class="modera-topnav bg-dimmed">
+    <div class="modera-topnav__logo">MODERA</div>
+    <div class="modera-topnav__module">Salesfront</div>
+    <div class="modera-topnav__right">
+      <span class="pub-status-pill pub-status-pill--idle">Publishing</span>
+      <span class="topnav-icon">🔔</span>
+      <span class="topnav-username">J. Tamm ▾</span>
+    </div>
+  </div>
+  <div class="modera-subnav bg-dimmed">
+    <a class="subnav-tab subnav-tab--active">Inventory</a>
+    <a class="subnav-tab">Customers</a>
+    <a class="subnav-tab">Deals</a>
+  </div>
+  <div style="flex:1;background:var(--page-bg);padding:10px;filter:brightness(0.82);pointer-events:none;overflow:hidden;">
+    <table class="inv-table" style="width:100%;font-size:11px;">
+      <thead><tr>
+        <th style="width:30px;"><input type="checkbox" class="jq-check"></th>
+        <th>Vehicle</th><th>Year</th><th>Reg. no.</th><th>Price</th><th>Channels</th><th>Status</th>
+      </tr></thead>
+      <tbody>
+        <tr><td><input type="checkbox" class="jq-check"></td><td style="font-weight:600;">VW Golf 1.6 TDI</td><td>2019</td><td>ABC-123</td><td>€14,500</td><td><span class="ch-dot ch-dot--unpublished"></span><span class="ch-dot ch-dot--unpublished"></span><span class="ch-dot ch-dot--unpublished"></span></td><td><span class="status-badge status-badge--unpub">Unpublished</span></td></tr>
+        <tr><td><input type="checkbox" class="jq-check"></td><td style="font-weight:600;">Toyota RAV4 2.0</td><td>2021</td><td>XYZ-789</td><td>€28,900</td><td><span class="ch-dot ch-dot--published"></span><span class="ch-dot ch-dot--published"></span><span class="ch-dot ch-dot--published"></span></td><td><span class="status-badge status-badge--pub">Published</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay">
+  <div class="vc-modal" style="width:900px;max-width:98vw;">
+    <div class="vc-modal__header">
+      <div>
+        <div class="vc-modal__title">Vehicle Builder — VW Golf 1.6 TDI (ABC-123)</div>
+        <div class="vc-modal__subtitle">Complete highlighted fields to publish on Mobile.de</div>
+      </div>
+      <button class="vc-modal__close">✕</button>
+    </div>
+    <div style="background:linear-gradient(180deg,#fff3cd,#feeaa0);border-bottom:1px solid #e0c060;padding:7px 14px;font-size:11.5px;color:#7a5010;display:flex;align-items:center;gap:7px;">
+      ⚠ Complete these fields to publish on Mobile.de
+      <div style="flex:1;"></div>
+      <button class="jq-btn jq-btn--sm">← Back to Publishing</button>
+    </div>
+    <div style="display:flex;flex:1;overflow:hidden;max-height:60vh;">
+      <div style="flex:1;overflow-y:auto;padding:14px;background:var(--content-bg);">
+        <div class="builder-section" style="background:#fff;border:1px solid var(--border);border-radius:3px;margin-bottom:10px;">
+          <div style="background:linear-gradient(180deg,#eef6fb,#e0edf5);padding:6px 10px;border-bottom:1px solid var(--border);font-size:11.5px;font-weight:700;">Technical data</div>
+          <div style="padding:10px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+              <div>
+                <label class="jq-label" style="color:#b03030;">Mileage (km) *</label>
+                <input class="jq-input builder-form__field--highlighted" placeholder="e.g. 78200" type="number">
+                <div style="font-size:10px;color:#b03030;margin-top:2px;">Required by Mobile.de</div>
+              </div>
+              <div>
+                <label class="jq-label" style="color:#b03030;">Fuel type *</label>
+                <select class="jq-select builder-form__field--highlighted">
+                  <option value="">Select fuel type…</option>
+                  <option>Diesel</option><option>Petrol</option><option>Hybrid</option>
+                </select>
+                <div style="font-size:10px;color:#b03030;margin-top:2px;">Required by Mobile.de</div>
+              </div>
+              <div>
+                <label class="jq-label">Engine (cc)</label>
+                <input class="jq-input" value="1598" type="number">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="width:260px;flex-shrink:0;padding:10px;background:var(--page-bg);border-left:1px solid var(--border);">
+        <div class="pub-panel">
+          <div class="pub-panel__header" style="background:#fff3cd;border:none;">
+            <div style="font-size:11px;color:#7a5010;font-weight:600;">⚠ Missing for Mobile.de</div>
+          </div>
+          <div class="pub-panel__body">
+            <div style="font-size:10.5px;color:#b03030;">· Mileage (km)</div>
+            <div style="font-size:10.5px;color:#b03030;">· Fuel type</div>
+          </div>
+          <div class="pub-panel__footer">
+            <button class="jq-btn jq-btn--sm">← Back</button>
+            <button class="jq-btn jq-btn--sm jq-btn--green">Save & Return →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:8px 14px;border-top:1px solid var(--border);background:linear-gradient(180deg,#f0f6fa,#e4edf5);display:flex;gap:8px;align-items:center;">
+      <button class="jq-btn">← Back to Publishing</button>
+      <div style="flex:1;"></div>
+      <button class="jq-btn jq-btn--green">Save & Return to Publishing</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
