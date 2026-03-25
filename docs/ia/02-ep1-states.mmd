@@ -1,0 +1,63 @@
+flowchart TD
+  classDef aFlow fill:#dbeafe,stroke:#3b82f6,color:#1e3a5f
+  classDef bFlow fill:#fee2e2,stroke:#ef4444,color:#7f1d1d
+  classDef cFlow fill:#dcfce7,stroke:#22c55e,color:#14532d
+  classDef action fill:#1e3a52,stroke:#1e3a52,color:#fff,shape:rounded
+  classDef auto fill:#f1f5f9,stroke:#94a3b8,color:#475569,font-style:italic
+
+  START(["Entry: Vehicle Card\nPublishing Tab opened"])
+
+  subgraph AFLOW ["A-Flow — First Publish"]
+    A1["A1: Idle · Unpublished\n5 channels, all gray\nReadiness bars shown (U2)"]
+    A2["A2: Channel Select\nCheckboxes, 'Select all'\nDynamic CTA count"]
+    A3["A3: Validation Warnings\n✓ Ready / ⚠ Missing fields\nInline Go to Builder link"]
+    A4["A4: Publishing in Progress\nSequential channel updates\n800ms interval, auto-advance"]
+    A5["A5: Success ✓\nAll published + timestamps\n↗ View live links (U4)"]
+  end
+
+  subgraph BFLOW ["B-Flow — Error Recovery"]
+    B1["B1: Mixed State\n2 errors · 2 published · 1 pending\nExpand toggle per error row"]
+    B2["B2: Error Detail\nInline expanded error\nMissing fields listed"]
+    B3["B3: Builder Highlight\nWarning banner\nRed borders on fields"]
+    B4["B4: Ready / Retry\n'Fields updated' confirmation\nRetry buttons per channel"]
+  end
+
+  subgraph CFLOW ["C-Flow — Unpublish"]
+    C1["C1: All Published\nAll 5 channels ●\nHover: ↗ View links (U4)"]
+    C2["C2: Select Unpublish\nNone pre-checked\nRed CTA variant"]
+    C3["C3: Confirm Unpublish\n⚠ Destructive action\nChannel names + URLs listed"]
+    C4["C4: Partial Result\n3 published · 2 unpublished\nRe-publish available"]
+  end
+
+  START --> A1
+  START --> B1
+  START --> C1
+
+  A1 -->|"Publish to channels"| A2
+  A2 -->|"Publish N channels →"| A3
+  A3 -->|"← Back"| A2
+  A3 -->|"Publish anyway\n(3 of 4) →"| A4
+  A3 -->|"Go to Vehicle Builder →"| B3
+  A4 -->|"auto-complete"| A5
+  A5 -->|"Unpublish from channels…"| C2
+  A4 -->|"all channels published"| C1
+
+  B1 -->|"Fix errors"| B2
+  B1 -->|"Publish remaining →"| A4
+  B2 -->|"Go to Vehicle Builder →"| B3
+  B2 -->|"← Back"| B1
+  B3 -->|"Save & Return to Publishing"| B4
+  B3 -->|"← Back to Publishing"| B1
+  B4 -->|"Retry all failed channels"| A4
+
+  C1 -->|"Unpublish from channels…"| C2
+  C2 -->|"Unpublish N channels →"| C3
+  C2 -->|"Cancel"| C1
+  C3 -->|"Unpublish now"| C4
+  C3 -->|"← Cancel"| C2
+  C4 -->|"Publish to channels →"| A2
+
+  class A1,A2,A3,A4,A5 aFlow
+  class B1,B2,B3,B4 bFlow
+  class C1,C2,C3,C4 cFlow
+  class START action

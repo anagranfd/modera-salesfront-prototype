@@ -377,7 +377,19 @@ The builder is a full-page form (`ep2-vehicle-builder.html`). The publishing pan
 
 ## 5. EP3 — Inventory Pipeline · Batch Publishing
 
-The inventory table with row selection, batch action bar, and full wizard modal.
+The inventory table with row selection, batch action bar, full wizard modal, and Advanced Filter sidebar.
+
+### Layout
+Two-column layout: main table area (flex: 1) + fixed 210px **Advanced Filter sidebar** on the right.
+
+### Advanced Filter Sidebar
+Always-visible panel on the right edge of the inventory view:
+- **Header**: "Advanced filter" label with filter icon
+- **Model search**: Free-text search input ("Search model…")
+- **Model list**: Clickable rows per make (Volkswagen 12, Toyota 8, BMW 11, Mercedes 9, Audi 7, Skoda 6), each with thumbnail icon and count badge. Clicking activates a row (blue left border + highlight). First row (Volkswagen) active by default.
+- **Channel status summary** (bottom): color-coded counts for Published (31 · green), Pending (12 · amber), Errors (7 · red), Not published (24 · gray)
+
+**Rationale**: Dealers manage large inventories. Quick filtering by make and visual channel-status overview in the sidebar allows staff to focus batch publishing actions on relevant vehicles without switching views.
 
 ### URL Hash Navigation
 - `ep3-inventory-pipeline.html#s1` → Hover state on second row
@@ -608,7 +620,7 @@ Modera/
 ├── prototype/
 │   ├── ep1-vehicle-card.html          # Interactive EP1 (13 states via hash)
 │   ├── ep2-vehicle-builder.html       # Interactive EP2 (6 states + shared)
-│   ├── ep3-inventory-pipeline.html    # Interactive EP3 (batch wizard)
+│   ├── ep3-inventory-pipeline.html    # Interactive EP3 (batch wizard + Advanced Filter sidebar)
 │   └── shared/
 │       ├── tokens.css                 # CSS custom properties / design tokens
 │       ├── components.css             # All component styles
@@ -621,7 +633,9 @@ Modera/
 │   ├── ep2/  (6 static frozen states)
 │   └── ep3/  (10 static frozen states)
 ├── docs/
-│   └── annotations.md                 # This document
+│   ├── annotations.md                 # This document
+│   ├── presentation-slides.md         # Slide texts for the demo call
+│   └── gamma-prompt.md                # Prompt for generating Gamma presentation
 └── server.py                          # Local HTTP preview server (port 8080)
 ```
 

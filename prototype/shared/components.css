@@ -466,7 +466,7 @@ body {
   background: #f0f6fa;
 }
 .inv-table tbody tr:hover td {
-  background: #e4f0f8;
+  /* hover highlight removed — selection via checkbox only */
 }
 .inv-table td {
   padding: 5px 8px;

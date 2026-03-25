@@ -1,0 +1,59 @@
+flowchart TD
+  classDef ep1Style fill:#dbeafe,stroke:#3b82f6,color:#1e3a5f
+  classDef ep2Style fill:#dcfce7,stroke:#22c55e,color:#14532d
+  classDef ep3Style fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  classDef entryStyle fill:#1e3a52,stroke:#1e3a52,color:#fff
+  classDef uxStyle fill:#f3e8ff,stroke:#a855f7,color:#4a1d96
+  classDef sharedStyle fill:#f1f5f9,stroke:#94a3b8,color:#334155
+
+  STAFF(["👤 Dealership Staff"])
+
+  subgraph EP3 ["EP3 — Inventory Pipeline (Batch)"]
+    direction TB
+    INV["📋 Inventory Table\n10+ vehicles"]
+    S1["S1: Hover → inline actions"]
+    B1["B1: Batch Action Bar\nN vehicles selected"]
+    INV --> S1
+    INV --> B1
+  end
+
+  subgraph EP1 ["EP1 — Vehicle Card Modal (Single)"]
+    direction TB
+    VC["🚗 Vehicle Card\n(any tab)"]
+    PUB["Publishing Tab\nState machine: 13 states\nFlows A / B / C"]
+    VC --> PUB
+  end
+
+  subgraph EP2 ["EP2 — Vehicle Builder (Inline Panel)"]
+    direction TB
+    BLD["🔧 Full-page Builder\nForm + right panel"]
+    PNL["Publishing Panel\n6 states · real-time\nvalidation + highlights"]
+    BLD --> PNL
+  end
+
+  subgraph UX ["UX Improvements"]
+    U1["U1: Publishing\nStatus Pill (topnav)"]
+    U2["U2: Proactive\nReadiness Bars (A1)"]
+    U3["U3: Batch Limit\nWarning (10+)"]
+    U4["U4: View Live\nListing Links (A5/C1)"]
+  end
+
+  STAFF -->|"Opens inventory"| EP3
+  STAFF -->|"Clicks vehicle row"| EP1
+  STAFF -->|"Opens builder"| EP2
+
+  S1 -->|"Publish button"| EP1
+  B1 -->|"Publish selected"| EP3BATCH["Batch Wizard\nB2 → B3 → B4 → B5/B6/B7"]
+  PUB -->|"Go to Builder →"| EP2
+  PNL -->|"Publishing modal"| EP1
+
+  EP1 -.->|"powers"| U2
+  EP1 -.->|"powers"| U4
+  EP3 -.->|"powers"| U3
+  STAFF -.->|"always visible"| U1
+
+  class INV,S1,B1,EP3BATCH ep3Style
+  class VC,PUB ep1Style
+  class BLD,PNL ep2Style
+  class U1,U2,U3,U4 uxStyle
+  class STAFF entryStyle

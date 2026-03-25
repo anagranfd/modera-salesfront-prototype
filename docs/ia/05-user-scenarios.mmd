@@ -1,0 +1,67 @@
+flowchart TD
+  classDef happy fill:#dcfce7,stroke:#22c55e,color:#14532d
+  classDef errFlow fill:#fee2e2,stroke:#ef4444,color:#7f1d1d
+  classDef fix fill:#f3e8ff,stroke:#a855f7,color:#4a1d96
+  classDef batch fill:#dbeafe,stroke:#3b82f6,color:#1e3a5f
+  classDef unpub fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  classDef decision fill:#fffbeb,stroke:#f59e0b,color:#78350f
+  classDef title fill:#1e3a52,stroke:#1e3a52,color:#fff,font-weight:bold
+
+  T1["① Happy Path — First Publish\n(Single Vehicle · EP1-A Flow)"]:::title
+  A1s["EP1-A1: Idle\nReadiness bars (U2)"]
+  A2s["EP1-A2: Channel Select\nSelect channels"]
+  A3s["EP1-A3: Validation\nReview warnings"]
+  A4s["EP1-A4: In Progress\n800ms sequential update"]
+  A5s["EP1-A5: Success ✓\nTimestamps + View links (U4)"]
+  T1 --> A1s --> A2s --> A3s --> A4s --> A5s
+
+  T2["② Error Recovery — Fix & Retry\n(EP1-B Flow → EP2)"]:::title
+  B1s["EP1-B1: Mixed State\n2 errors · 2 published · 1 pending"]
+  B2s["EP1-B2: Error Detail\nMissing fields expanded"]
+  B3s["EP2-A2: Builder\nFields highlighted red"]
+  B3r["EP2-A3→A4: Fill fields\nReal-time panel update"]
+  B4s["EP1-B4: Ready / Retry\n'Fields updated'"]
+  B5s["EP1-A4→A5: Retry\n✓ Published"]
+  T2 --> B1s --> B2s --> B3s --> B3r --> B4s --> B5s
+
+  T3["③ Proactive Fix in Builder\n(EP2 Native Flow)"]:::title
+  C1s["EP2-A1: Builder Idle\nPanel: readiness bars"]
+  C2s["EP2-A2: Validation\nClick Publish → highlights"]
+  C3s{{"Fields in\nanother tab?"}}
+  C4s["EP2-A3→A4\nFix in Basic Info"]
+  C5s["EP2-A5: Switch to Details\nFix there → A4"]
+  C6s["EP2-A6: Publish\n→ Success"]
+  T3 --> C1s --> C2s --> C3s
+  C3s -->|"No"| C4s --> C6s
+  C3s -->|"Yes"| C5s --> C6s
+
+  T4["④ Batch Publish from Inventory\n(EP3 Batch Flow)"]:::title
+  D1s["EP3-B1: Batch Bar\nN vehicles selected · blue tint"]
+  D2s["EP3-B2: Channel Selector\nStep 1 of 3"]
+  D3s["EP3-B3: Validation Matrix\nStep 2 of 3\nIssues per vehicle × channel"]
+  D4s{{"Fix or\nproceed?"}}
+  D5s["EP3-B3a: Fix Inline\nVehicle 1 of 2 with issues"]
+  D6s["Proceed anyway\nskip bad combos"]
+  D7s["EP3-B4: Batch Progress\nStep 3 of 3 · 600ms interval"]
+  D8s["B5 ✓ All success\nor B6 ⚠ Partial\nor B7 ✕ All failed"]
+  T4 --> D1s --> D2s --> D3s --> D4s
+  D4s -->|"Fix"| D5s --> D7s
+  D4s -->|"Proceed"| D6s --> D7s
+  D7s --> D8s
+
+  T5["⑤ Unpublish Flow\n(EP1-C Flow)"]:::title
+  E1s["EP1-C1: All Published\nHover: ↗ View links (U4)"]
+  E2s["EP1-C2: Select Unpublish\nNone pre-checked · red CTA"]
+  E3s["EP1-C3: Confirm\n'Listing removed immediately'"]
+  E4s["EP1-C4: Partial Result\n3 published · 2 unpublished"]
+  T5 --> E1s --> E2s --> E3s --> E4s
+
+  A5s -.->|"leads to"| T5
+  D8s -.->|"retry"| D7s
+
+  class A1s,A2s,A3s,A4s,A5s happy
+  class B1s,B2s,B3s,B3r,B4s,B5s errFlow
+  class C1s,C2s,C4s,C5s,C6s fix
+  class D1s,D2s,D3s,D5s,D6s,D7s,D8s batch
+  class E1s,E2s,E3s,E4s unpub
+  class C3s,D4s decision

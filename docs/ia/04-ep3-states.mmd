@@ -1,0 +1,64 @@
+flowchart TD
+  classDef tableState fill:#f1f5f9,stroke:#94a3b8,color:#334155
+  classDef singleState fill:#dbeafe,stroke:#3b82f6,color:#1e3a5f
+  classDef batchState fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  classDef errorState fill:#fee2e2,stroke:#ef4444,color:#7f1d1d
+  classDef successState fill:#dcfce7,stroke:#22c55e,color:#14532d
+  classDef fixState fill:#f3e8ff,stroke:#a855f7,color:#4a1d96
+  classDef entryStyle fill:#1e3a52,stroke:#1e3a52,color:#fff
+
+  START(["Entry: Inventory Table\n10 vehicles with status dots"])
+
+  subgraph SINGLE ["Single Vehicle Path"]
+    S1["S1: Hover State\nRow highlights\n[Publish] or [Fix errors]\nbuttons appear inline"]
+    S2["S2: Single Vehicle Modal\nEP1-A2 state over dimmed table\nChannel checkboxes + completeness"]
+    EP1(["→ EP1 full flow\n(A2 → A3 → A4 → A5)"])
+    S1 -->|"[Publish] button"| S2
+    S2 -->|"Publish N channels →"| EP1
+  end
+
+  subgraph BATCH ["Batch Path"]
+    B1["B1: Batch Action Bar\n4 vehicles selected\nSelected rows: blue tint\nBar slides up (250ms)\n⚠ U3: amber pill if 10+"]
+
+    B2["B2: Channel Selector\nStep 1 of 3\n3 channels checked\nBlue border on selected\nDynamic: 'Next: Validate (3) →'"]
+
+    B3["B3: Validation Matrix\nStep 2 of 3\nGrid: vehicles × channels\n✓ Ready / ⚠ Missing N\nBanner: 'RAV4 + Audi A4\nskipped for Mobile.de'"]
+
+    B3A["B3a: Fix Issues Builder\n'Vehicle 1 of 2 with issues'\nMileage + Fuel type highlighted\nInline mini-form in wizard"]
+
+    B4["B4: Batch Progress\nStep 3 of 3\nOverall bar (600ms interval)\nLive matrix: ✓ ⟳ · —\nClose button disabled"]
+
+    B5["B5: Batch Success ✓\n'10 of 10 successful'\nAll ✓, skips show —\nNote: 2 skipped combos"]
+
+    B6["B6: Partial Errors ⚠\n'8 of 10 successful · 2 failed'\nBMW 320d → Mobile.de: timeout\nAudi A4 → SS.lv: 503\n[Retry failed →]"]
+
+    B7["B7: All Failed ✕\n'Connection timed out'\nAll cells: ✕\n[Retry all] prominent (red)"]
+  end
+
+  START -->|"hover row"| S1
+  START -->|"check N rows"| B1
+
+  B1 -->|"[Publish selected →]"| B2
+  B2 -->|"[← Back]"| B1
+  B2 -->|"[Next: Validate (N) →]"| B3
+  B3 -->|"[← Back]"| B2
+  B3 -->|"[Fix issues first]"| B3A
+  B3A -->|"[Skip this vehicle]"| B3
+  B3A -->|"[Save & Next vehicle →]"| B4
+  B3 -->|"[Proceed anyway →]"| B4
+  B4 -->|"all success"| B5
+  B4 -->|"partial fail"| B6
+  B4 -->|"all fail"| B7
+  B5 -->|"[Done]"| START
+  B6 -->|"[Retry failed →]"| B4
+  B7 -->|"[Retry all]"| B4
+
+  class START entryStyle
+  class S1,S2 singleState
+  class B1,B2 tableState
+  class B3 batchState
+  class B3A fixState
+  class B4 batchState
+  class B5 successState
+  class B6 errorState
+  class B7 errorState
