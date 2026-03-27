@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Figma Canvas Layout Map — Vehicle Publishing Tool</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #f0f4f8;
+    color: #1a2e3d;
+    padding: 32px;
+  }
+
+  h1 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a2e3d;
+    margin-bottom: 6px;
+  }
+  .subtitle {
+    font-size: 12px;
+    color: #5a7080;
+    margin-bottom: 32px;
+  }
+
+  /* ── Episode section ─────────────────────────────────── */
+  .episode {
+    border-radius: 12px;
+    padding: 20px 24px 28px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .ep1 { background: #e8f2fb; border: 1.5px solid #93c5e8; }
+  .ep2 { background: #e6f7ee; border: 1.5px solid #86c9a0; }
+  .ep3 { background: #fef6e0; border: 1.5px solid #d4a840; }
+
+  .ep-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .ep1 .ep-label { color: #1e6090; }
+  .ep2 .ep-label { color: #1a6040; }
+  .ep3 .ep-label { color: #7a5010; }
+
+  .ep-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 18px;
+  }
+  .ep1 .ep-title { color: #1e3a52; }
+  .ep2 .ep-title { color: #1e3a30; }
+  .ep3 .ep-title { color: #4a3010; }
+
+  /* ── Row label ───────────────────────────────────────── */
+  .row-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .row-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #8aabb8;
+    margin-bottom: 2px;
+  }
+  .row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    flex-wrap: nowrap;
+  }
+
+  /* ── Frame card ──────────────────────────────────────── */
+  .frame {
+    width: 152px;
+    border-radius: 7px;
+    border: 1.5px solid;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .frame-head {
+    padding: 6px 8px 5px;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .frame-code {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  .frame-name {
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 1.3;
+    color: #3a5060;
+  }
+  .frame-body {
+    padding: 5px 8px 7px;
+    background: rgba(255,255,255,0.55);
+    font-size: 9.5px;
+    line-height: 1.45;
+    color: #4a6070;
+    min-height: 44px;
+  }
+  .frame-footer {
+    padding: 4px 8px;
+    font-size: 9px;
+    font-weight: 600;
+    color: #8aabb8;
+    background: rgba(255,255,255,0.3);
+    border-top: 1px solid rgba(0,0,0,0.07);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* EP1 frame colors */
+  .ep1 .frame { border-color: #7ab8d8; }
+  .ep1 .frame-head { background: #cfe8f5; }
+  .ep1 .frame-code { color: #1e5070; }
+
+  /* EP1 overlay frames */
+  .ep1 .frame.overlay { border-color: #b090d0; }
+  .ep1 .frame.overlay .frame-head { background: #ecdff8; }
+  .ep1 .frame.overlay .frame-code { color: #5a2e90; }
+
+  /* EP2 frame colors */
+  .ep2 .frame { border-color: #68ba88; }
+  .ep2 .frame-head { background: #c8ecd8; }
+  .ep2 .frame-code { color: #1a5030; }
+
+  /* EP3 frame colors */
+  .ep3 .frame { border-color: #c8a030; }
+  .ep3 .frame-head { background: #fce8b0; }
+  .ep3 .frame-code { color: #6a4010; }
+  .ep3 .frame.result-ok { border-color: #68ba88; }
+  .ep3 .frame.result-ok .frame-head { background: #c8ecd8; }
+  .ep3 .frame.result-ok .frame-code { color: #1a5030; }
+  .ep3 .frame.result-warn { border-color: #e09040; }
+  .ep3 .frame.result-warn .frame-head { background: #fcd8a0; }
+  .ep3 .frame.result-warn .frame-code { color: #7a4010; }
+  .ep3 .frame.result-err { border-color: #d07070; }
+  .ep3 .frame.result-err .frame-head { background: #f8d0d0; }
+  .ep3 .frame.result-err .frame-code { color: #7a2020; }
+
+  /* ── Arrow ───────────────────────────────────────────── */
+  .arr {
+    display: flex;
+    align-items: center;
+    align-self: center;
+    padding: 0 5px;
+    flex-shrink: 0;
+  }
+  .arr-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .arr-label {
+    font-size: 8.5px;
+    color: #8aabb8;
+    white-space: nowrap;
+    max-width: 80px;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .arr svg { display: block; }
+
+  /* ── Down arrow row ──────────────────────────────────── */
+  .down-arr {
+    display: flex;
+    align-items: center;
+    margin-left: 76px; /* center under first frame */
+    margin-top: 2px;
+    margin-bottom: 2px;
+    gap: 4px;
+    font-size: 8.5px;
+    color: #8aabb8;
+  }
+
+  /* ── Annotation strip ────────────────────────────────── */
+  .ann-strip {
+    margin-top: 18px;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+  .ann-strip h3 {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #8aabb8;
+    margin-bottom: 10px;
+  }
+  .ann-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10.5px;
+  }
+  .ann-table th {
+    text-align: left;
+    font-weight: 600;
+    color: #5a7080;
+    padding: 4px 10px 4px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    white-space: nowrap;
+  }
+  .ann-table td {
+    padding: 5px 10px 5px 0;
+    color: #3a5060;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    vertical-align: top;
+    line-height: 1.45;
+  }
+  .ann-table tr:last-child td { border-bottom: none; }
+  .code { font-weight: 700; color: #1a3a52; white-space: nowrap; }
+  .action { font-style: italic; color: #7090a0; }
+  .arrow-hint { color: #a0b0b8; font-size: 9.5px; }
+
+  /* ── Legend ──────────────────────────────────────────── */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding: 14px 18px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #dde8f0;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    color: #3a5060;
+  }
+  .legend-dot {
+    width: 12px; height: 12px;
+    border-radius: 3px;
+    border: 1.5px solid;
+    flex-shrink: 0;
+  }
+  .ld-ep1 { background: #cfe8f5; border-color: #7ab8d8; }
+  .ld-ep2 { background: #c8ecd8; border-color: #68ba88; }
+  .ld-ep3 { background: #fce8b0; border-color: #c8a030; }
+  .ld-ovl { background: #ecdff8; border-color: #b090d0; }
+  .ld-ok  { background: #c8ecd8; border-color: #68ba88; }
+  .ld-warn{ background: #fcd8a0; border-color: #e09040; }
+  .ld-err { background: #f8d0d0; border-color: #d07070; }
+
+  /* ── Figma instructions box ──────────────────────────── */
+  .instructions {
+    background: #1e3a52;
+    color: #c8dce8;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    font-size: 11.5px;
+    line-height: 1.7;
+  }
+  .instructions h2 {
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 12px;
+  }
+  .instructions ol { padding-left: 18px; }
+  .instructions li { margin-bottom: 5px; }
+  .instructions code {
+    background: rgba(255,255,255,0.12);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 10.5px;
+    color: #a0d8f0;
+  }
+
+  .spacer { width: 152px; flex-shrink: 0; }
+  .spacer-sm { width: 60px; flex-shrink: 0; }
+
+  .section-divider {
+    width: 1px;
+    align-self: stretch;
+    background: rgba(0,0,0,0.1);
+    margin: 0 20px;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<h1>Figma Canvas Layout Map</h1>
+<p class="subtitle">Vehicle Publishing Tool · 29 screens · EP1 / EP2 / EP3 · Page "Page 1.2 – 27.03.2026"</p>
+
+<!-- ── Instructions ──────────────────────────────────────────────── -->
+<div class="instructions">
+  <h2>Как организовать файл в Figma</h2>
+  <ol>
+    <li>Создай три <code>Section</code> на канвасе — по одному на каждый эпизод. Расположи их вертикально сверху вниз: EP1 → EP2 → EP3.</li>
+    <li>Внутри каждого Section расставь фреймы по рядам (слева направо = ход сценария). Оставляй между фреймами <code>80–100px</code> по горизонтали, <code>120px</code> между рядами.</li>
+    <li>Overlay-экраны (Channel Select, Unpublish Select/Confirm) размещай <b>над</b> или <b>чуть правее</b> родительского фрейма, из которого они открываются.</li>
+    <li>Соединяй фреймы <b>стрелками Figma</b> (R → Connections). На каждой стрелке добавь текстовую метку — название действия пользователя.</li>
+    <li>К каждому фрейму прикрепи <b>Sticky Note</b> (или текстовый блок снизу) с четырьмя строками: <code>Entry / Показывает / Действия / → Переходы</code>. Цветовую схему стикеров смотри в легенде ниже.</li>
+    <li>Назови каждый фрейм точно по шаблону: <code>EP1 · A1 · Idle (Unpublished)</code> — код, точка, имя.</li>
+  </ol>
+</div>
+
+<!-- ── Legend ─────────────────────────────────────────────────────── -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot ld-ep1"></div> EP1 — Vehicle Card</div>
+  <div class="legend-item"><div class="legend-dot ld-ep2"></div> EP2 — Builder</div>
+  <div class="legend-item"><div class="legend-dot ld-ep3"></div> EP3 — Inventory / Batch</div>
+  <div class="legend-item"><div class="legend-dot ld-ovl"></div> Overlay / Dialog</div>
+  <div class="legend-item"><div class="legend-dot ld-ok"></div> Результат: успех</div>
+  <div class="legend-item"><div class="legend-dot ld-warn"></div> Результат: частичные ошибки</div>
+  <div class="legend-item"><div class="legend-dot ld-err"></div> Результат: все упали</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- EP1                                                             -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="episode ep1">
+  <div class="ep-label">EP1</div>
+  <div class="ep-title">Vehicle Card — Publishing Dialog &nbsp;·&nbsp; 13 экранов</div>
+
+  <!-- Row A: main publish flow -->
+  <div class="row-wrap">
+    <div class="row-label">Ряд A — основной сценарий публикации</div>
+    <div class="row">
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">A1</span><span class="frame-name">Idle (Unpublished)</span></div>
+        <div class="frame-body">Каналы выбраны, ни один не опубликован. Серые точки + completeness bars.</div>
+        <div class="frame-footer">Entry: клик на строку в инвентаре</div>
+      </div>
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">Publish<br>to channels</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#93c5e8" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#93c5e8"/></svg>
+        </div>
+      </div>
+
+      <div class="frame overlay">
+        <div class="frame-head"><span class="frame-code">A2</span><span class="frame-name">Channel Select</span></div>
+        <div class="frame-body">Overlay. Список каналов с чекбоксами и completeness bars.</div>
+        <div class="frame-footer">Также открыв. кнопкой Add channels</div>
+      </div>
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">Next:<br>Validate →</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#93c5e8" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#93c5e8"/></svg>
+        </div>
+      </div>
+
+      <div class="frame overlay">
+        <div class="frame-head"><span class="frame-code">A3</span><span class="frame-name">Validation</span></div>
+        <div class="frame-body">Предупреждения перед публикацией. Для строгих каналов — список пропущенных полей.</div>
+        <div class="frame-footer">Proceed anyway → или Go to Builder</div>
+      </div>
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">Proceed</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#93c5e8" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#93c5e8"/></svg>
+        </div>
+      </div>
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">A4</span><span class="frame-name">Progress</span></div>
+        <div class="frame-body">Синяя полоса прогресса. Спиннер → ✓/✗ на каждый канал поочерёдно. ~900ms/канал.</div>
+        <div class="frame-footer">Авто-переход по завершении</div>
+      </div>
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">All OK</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#93c5e8" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#93c5e8"/></svg>
+        </div>
+      </div>
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">A5</span><span class="frame-name">Success</span></div>
+        <div class="frame-body">Все каналы: зелёная точка + timestamp + внешняя ссылка.</div>
+        <div class="frame-footer">→ C2 (Unpublish), → A2 (Add channels)</div>
+      </div>
+
+    </div><!-- /row A -->
+  </div><!-- /row-wrap -->
+
+  <!-- Row B: error states -->
+  <div class="row-wrap">
+    <div class="row-label">Ряд B — частичная ошибка публикации</div>
+    <div class="row">
+
+      <div class="spacer"></div><!-- align under A2 col -->
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">Some fail<br>(BMW)</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#d07070" stroke-width="1.5" stroke-dasharray="3,2"/><polygon points="30,3 36,7 30,11" fill="#d07070"/></svg>
+        </div>
+      </div>
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">B1</span><span class="frame-name">Mixed State</span></div>
+        <div class="frame-body">Две группы: Active channels (зел.) + Not published (красн. ✕). Стрелка ▸ у каждого failed.</div>
+        <div class="frame-footer">→ B2 (expand), → A4 (retry), → C2</div>
+      </div>
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">expand ▸</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#d07070" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#d07070"/></svg>
+        </div>
+      </div>
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">B2</span><span class="frame-name">Error Detail</span></div>
+        <div class="frame-body">Inline-разворот под каналом. Описание ошибки. Кнопка Go to Builder →</div>
+        <div class="frame-footer">→ B3 (builder), collapse → B1</div>
+      </div>
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">Go to<br>Builder →</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#d07070" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#d07070"/></svg>
+        </div>
+      </div>
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">B3</span><span class="frame-name">Builder Highlight</span></div>
+        <div class="frame-body">EP2 Builder открывается с sidebar. Sidebar показывает тот же Mixed State. Контекст ошибки сохранён.</div>
+        <div class="frame-footer">Entry point в EP2</div>
+      </div>
+
+    </div><!-- /row B -->
+  </div><!-- /row-wrap -->
+
+  <!-- Row C: unpublish flow -->
+  <div class="row-wrap">
+    <div class="row-label">Ряд C — снятие с публикации</div>
+    <div class="row">
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">C1</span><span class="frame-name">All Published</span></div>
+        <div class="frame-body">То же, что A5. Все каналы активны. Зелёные точки + timestamps.</div>
+        <div class="frame-footer">Алт. точка входа в Unpublish flow</div>
+      </div>
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">Unpublish…</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#b090d0" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#b090d0"/></svg>
+        </div>
+      </div>
+
+      <div class="frame overlay">
+        <div class="frame-head"><span class="frame-code">C2</span><span class="frame-name">Select Unpublish</span></div>
+        <div class="frame-body">Overlay. Оранжевый хедер. Список опубликованных каналов. Все pre-selected (красн. чекбоксы).</div>
+        <div class="frame-footer">Cancel → обратно; Next → C3</div>
+      </div>
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">Unpublish<br>to Channels →</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#b090d0" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#b090d0"/></svg>
+        </div>
+      </div>
+
+      <div class="frame overlay">
+        <div class="frame-head"><span class="frame-code">C3</span><span class="frame-name">Confirm Unpublish</span></div>
+        <div class="frame-body">Dialog. Оранж. хедер. Alert-блок: список каналов + предупреждение. Unpublish now.</div>
+        <div class="frame-footer">Cancel → C2; Confirm → A1/B1/Empty</div>
+      </div>
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">Partial<br>unpublish</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#b090d0" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#b090d0"/></svg>
+        </div>
+      </div>
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">C4</span><span class="frame-name">Partial Result</span></div>
+        <div class="frame-body">Часть каналов снята. Оставшиеся активные — в группе Active. Кнопки: Add channels, Unpublish, Publish.</div>
+        <div class="frame-footer">After partial unpublish from C3</div>
+      </div>
+
+    </div><!-- /row C -->
+  </div><!-- /row-wrap -->
+
+  <!-- Annotation table EP1 -->
+  <div class="ann-strip">
+    <h3>Аннотации для стикеров (EP1)</h3>
+    <table class="ann-table">
+      <tr>
+        <th>Экран</th>
+        <th>Entry condition</th>
+        <th>Ключевые элементы</th>
+        <th>Действия пользователя</th>
+      </tr>
+      <tr>
+        <td><span class="code">A1</span></td>
+        <td>Клик на строку инвентаря</td>
+        <td>Список каналов (серые точки), completeness bars</td>
+        <td>Publish to channels <span class="arrow-hint">→ A2/A4</span> · Add channels <span class="arrow-hint">→ A2</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">A2</span></td>
+        <td>«Publish to channels» или «Add channels»</td>
+        <td>Overlay с чекбоксами, completeness %, Select all</td>
+        <td>Next: Validate → <span class="arrow-hint">→ A3/A1</span> · Cancel</td>
+      </tr>
+      <tr>
+        <td><span class="code">A3</span></td>
+        <td>После выбора каналов (если есть предупреждения)</td>
+        <td>Validation overlay, список проблем, ссылка на Builder</td>
+        <td>Proceed anyway <span class="arrow-hint">→ A4</span> · Fix issues <span class="arrow-hint">→ EP2</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">A4</span></td>
+        <td>«Proceed anyway» или «Publish to channels»</td>
+        <td>Прогресс-бар, спиннеры на каналах</td>
+        <td><span class="action">Auto-transitions</span> → A5 (all OK) или B1 (some fail)</td>
+      </tr>
+      <tr>
+        <td><span class="code">A5</span></td>
+        <td>A4 завершён без ошибок</td>
+        <td>Зелёные точки, timestamps, ссылки на маркетплейсы</td>
+        <td>Add channels <span class="arrow-hint">→ A2</span> · Unpublish… <span class="arrow-hint">→ C2</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">B1</span></td>
+        <td>A4 завершён с ошибками (BMW 320d)</td>
+        <td>Два блока: Active (зел.) + Not published (красн.)</td>
+        <td>expand ▸ <span class="arrow-hint">→ B2</span> · Publish to channels <span class="arrow-hint">→ A4</span> · Unpublish… <span class="arrow-hint">→ C2</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">B2</span></td>
+        <td>Expand-стрелка на failed-канале (B1)</td>
+        <td>Inline error detail, описание ошибки</td>
+        <td>Go to Builder → <span class="arrow-hint">→ EP2·B3</span> · collapse <span class="arrow-hint">→ B1</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">B3</span></td>
+        <td>«Go to Builder» из B2</td>
+        <td>EP2 Builder с открытым sidebar, error context</td>
+        <td><span class="action">Entry point в EP2</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">C1</span></td>
+        <td>Альтернатива A5 (все каналы опубликованы)</td>
+        <td>Идентично A5</td>
+        <td>Unpublish… <span class="arrow-hint">→ C2</span> · Add channels <span class="arrow-hint">→ A2</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">C2</span></td>
+        <td>«Unpublish…» из A5/B1/C1</td>
+        <td>Overlay с оранжевым хедером, pre-selected каналы</td>
+        <td>Unpublish to Channels → <span class="arrow-hint">→ C3</span> · Cancel</td>
+      </tr>
+      <tr>
+        <td><span class="code">C3</span></td>
+        <td>«Unpublish to Channels →» из C2</td>
+        <td>Dialog с alert-блоком (список каналов + предупреждение)</td>
+        <td>Unpublish now <span class="arrow-hint">→ A1/B1/Empty</span> · Cancel <span class="arrow-hint">→ C2</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">C4</span></td>
+        <td>C3 → Unpublish now (не все каналы сняты)</td>
+        <td>Смешанный результат: часть активна, часть снята</td>
+        <td>Publish to channels <span class="arrow-hint">→ A4</span> · Unpublish… <span class="arrow-hint">→ C2</span></td>
+      </tr>
+    </table>
+  </div>
+</div><!-- /ep1 -->
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- EP2                                                             -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="episode ep2">
+  <div class="ep-label">EP2</div>
+  <div class="ep-title">Vehicle Builder — Publishing Sidebar &nbsp;·&nbsp; 6 экранов</div>
+
+  <div class="row-wrap">
+    <div class="row-label">Ряд A — состояния Builder с sidebar</div>
+    <div class="row">
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">A1</span><span class="frame-name">Builder Idle</span></div>
+        <div class="frame-body">Builder без sidebar. Полноширинная форма. Кнопка «Publish to channels» в правом верхнем углу.</div>
+        <div class="frame-footer">Entry: Edit из инвентаря</div>
+      </div>
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">Publish<br>to channels</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#68ba88" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#68ba88"/></svg>
+        </div>
+      </div>
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">A2</span><span class="frame-name">Validation Highlights</span></div>
+        <div class="frame-body">Builder + sidebar открыт. Sidebar: список каналов с предупреждениями. Подсветка полей в форме.</div>
+        <div class="frame-footer">Sidebar: состояние Unpublished</div>
+      </div>
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">поле<br>заполнено</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#68ba88" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#68ba88"/></svg>
+        </div>
+      </div>
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">A3</span><span class="frame-name">Realtime Update</span></div>
+        <div class="frame-body">Completeness bar растёт в real-time по мере заполнения полей. Предупреждения убираются.</div>
+        <div class="frame-footer">Sidebar обновляется live</div>
+      </div>
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">порог<br>достигнут</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#68ba88" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#68ba88"/></svg>
+        </div>
+      </div>
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">A4</span><span class="frame-name">Channel Unlocked</span></div>
+        <div class="frame-body">Канал разблокировался — индикатор сменился с оранжевого на зелёный. Кнопка Publish активна.</div>
+        <div class="frame-footer">Completeness достиг порога канала</div>
+      </div>
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">поле в<br>др. табе</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#68ba88" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#68ba88"/></svg>
+        </div>
+      </div>
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">A5</span><span class="frame-name">Field in Other Tab</span></div>
+        <div class="frame-body">Sidebar указывает на поле в другом табе. Подсветка таба + поля. Builder + sidebar видны одновременно.</div>
+        <div class="frame-footer">Cross-tab validation hint</div>
+      </div>
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">Publish<br>to channels</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#68ba88" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#68ba88"/></svg>
+        </div>
+      </div>
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">A6</span><span class="frame-name">Publishing from Builder</span></div>
+        <div class="frame-body">Sidebar в состоянии Progress (A4). Те же переходы что и в EP1: → Success или → Mixed State.</div>
+        <div class="frame-footer">Sidebar: Progress → Success / Mixed</div>
+      </div>
+
+    </div><!-- /row A -->
+  </div><!-- /row-wrap -->
+
+  <!-- Annotation table EP2 -->
+  <div class="ann-strip">
+    <h3>Аннотации для стикеров (EP2)</h3>
+    <table class="ann-table">
+      <tr><th>Экран</th><th>Entry condition</th><th>Ключевые элементы</th><th>Действия пользователя</th></tr>
+      <tr>
+        <td><span class="code">A1</span></td>
+        <td>Edit из инвентаря ИЛИ ← Inventory из EP1</td>
+        <td>Полноширинная форма, табы, кнопка «Publish to channels» справа вверху</td>
+        <td>Publish to channels <span class="arrow-hint">→ A2</span> · ← Inventory <span class="arrow-hint">→ EP3·S1</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">A2</span></td>
+        <td>«Publish to channels» из A1</td>
+        <td>Builder + sidebar (Unpublished state). Поля с предупреждениями подсвечены.</td>
+        <td>Редактировать поля <span class="arrow-hint">→ A3</span> · ✕ закрыть sidebar <span class="arrow-hint">→ A1</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">A3</span></td>
+        <td>Пользователь заполняет поля (A2)</td>
+        <td>Completeness bar растёт, предупреждения исчезают по мере ввода</td>
+        <td>Продолжать заполнение <span class="arrow-hint">→ A4</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">A4</span></td>
+        <td>Канал достиг порога completeness</td>
+        <td>Индикатор канала: оранжевый → зелёный. Кнопка Publish активна.</td>
+        <td>Publish to channels <span class="arrow-hint">→ A6</span> · продолжить правки</td>
+      </tr>
+      <tr>
+        <td><span class="code">A5</span></td>
+        <td>Незаполненное поле находится в другом табе</td>
+        <td>Sidebar: hint с указанием таба и поля. Таб выделен.</td>
+        <td>Перейти на нужный таб, заполнить поле <span class="arrow-hint">→ A3/A4</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">A6</span></td>
+        <td>«Publish to channels» из sidebar</td>
+        <td>Sidebar: Progress state. Builder-форма позади.</td>
+        <td><span class="action">Auto</span>: all OK <span class="arrow-hint">→ sidebar: Success</span> · some fail <span class="arrow-hint">→ sidebar: Mixed State</span></td>
+      </tr>
+    </table>
+  </div>
+</div><!-- /ep2 -->
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- EP3                                                             -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="episode ep3">
+  <div class="ep-label">EP3</div>
+  <div class="ep-title">Inventory Pipeline — Batch Publishing Wizard &nbsp;·&nbsp; 10 экранов</div>
+
+  <!-- Row S: inventory -->
+  <div class="row-wrap">
+    <div class="row-label">Ряд S — инвентарь (точка входа)</div>
+    <div class="row">
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">S1</span><span class="frame-name">Default State</span></div>
+        <div class="frame-body">Inventory table. 5 машин. Колонка Channels: цветные точки + счётчики по статусу.</div>
+        <div class="frame-footer">Home screen всего прототипа</div>
+      </div>
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">тик<br>чекбокса</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#c8a030" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#c8a030"/></svg>
+        </div>
+      </div>
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">S2</span><span class="frame-name">Single Vehicle Modal</span></div>
+        <div class="frame-body">Строка выбрана. Batch action bar снизу: «N selected · Publish selected · Cancel».</div>
+        <div class="frame-footer">Строки подсвечены #dce8f0</div>
+      </div>
+
+    </div><!-- /row S -->
+  </div><!-- /row-wrap -->
+
+  <!-- Row B: batch wizard -->
+  <div class="row-wrap">
+    <div class="row-label">Ряд B — batch wizard (шаги)</div>
+    <div class="row">
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">B1</span><span class="frame-name">Batch Action Bar</span></div>
+        <div class="frame-body">Action bar заменяет пагинацию. «N vehicles selected». Кнопки: Publish selected / Cancel.</div>
+        <div class="frame-footer">Entry: Publish selected → B2</div>
+      </div>
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">Publish<br>selected</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#c8a030" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#c8a030"/></svg>
+        </div>
+      </div>
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">B2</span><span class="frame-name">Batch Channel Selector</span></div>
+        <div class="frame-body">Как EP1·A2, но применяется ко всем выбранным машинам. Список каналов с completeness.</div>
+        <div class="frame-footer">Next: Validate → → B3</div>
+      </div>
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">Next:<br>Validate →</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#c8a030" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#c8a030"/></svg>
+        </div>
+      </div>
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">B3</span><span class="frame-name">Validation Summary</span></div>
+        <div class="frame-body">Матрица vehicle × channel. ✓ зел. = готово, ⚠ ор. = проблемы. Счётчик issue.</div>
+        <div class="frame-footer">Proceed anyway / Fix issues → B3a</div>
+      </div>
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">Proceed<br>anyway →</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#c8a030" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#c8a030"/></svg>
+        </div>
+      </div>
+
+      <div class="frame">
+        <div class="frame-head"><span class="frame-code">B4</span><span class="frame-name">Batch Progress</span></div>
+        <div class="frame-body">Full-page modal. Синяя полоса. Таблица: спиннер → ✓/✗ по каждой машине.</div>
+        <div class="frame-footer">Auto → B5 / B6 / B7</div>
+      </div>
+
+      <div class="arr">
+        <div class="arr-line">
+          <div class="arr-label">all OK</div>
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#68ba88" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#68ba88"/></svg>
+        </div>
+      </div>
+
+      <div class="frame result-ok">
+        <div class="frame-head"><span class="frame-code">B5</span><span class="frame-name">Batch Success</span></div>
+        <div class="frame-body">Зелёный хедер. «Batch publish complete». Все машины: ✓.</div>
+        <div class="frame-footer">Close → инвентарь</div>
+      </div>
+
+    </div><!-- /row B -->
+
+    <!-- Offset results row -->
+    <div style="margin-top:10px;">
+      <div class="row" style="margin-left: calc(152px*3 + 41px*3 + 36px*3);"><!-- align under B4 column -->
+
+        <div class="arr" style="transform: rotate(90deg); margin: 0 70px;">
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#e09040" stroke-width="1.5" stroke-dasharray="3,2"/><polygon points="30,3 36,7 30,11" fill="#e09040"/></svg>
+        </div>
+
+        <div class="arr" style="transform: rotate(90deg); margin: 0 46px;">
+          <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#d07070" stroke-width="1.5" stroke-dasharray="3,2"/><polygon points="30,3 36,7 30,11" fill="#d07070"/></svg>
+        </div>
+
+      </div>
+      <div class="row" style="margin-left: calc(152px*3 + 41px*3 + 36px*3 + 36px);">
+
+        <div class="frame result-warn">
+          <div class="frame-head"><span class="frame-code">B6</span><span class="frame-name">Batch Partial Errors</span></div>
+          <div class="frame-body">Оранжевый хедер. BMW: Mobile.de + City24 ✗. Остальные ✓. Retry failed.</div>
+          <div class="frame-footer">BMW 320d в выборке</div>
+        </div>
+
+        <div class="arr">
+          <div class="arr-line">
+            <div class="arr-label">VW+Audi<br>+Skoda</div>
+            <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#d07070" stroke-width="1.5" stroke-dasharray="3,2"/><polygon points="30,3 36,7 30,11" fill="#d07070"/></svg>
+          </div>
+        </div>
+
+        <div class="frame result-err">
+          <div class="frame-head"><span class="frame-code">B7</span><span class="frame-name">Batch All Failed</span></div>
+          <div class="frame-body">Красный хедер. Все машины: ✗. Retry all.</div>
+          <div class="frame-footer">VW Golf + Audi A4 + Skoda</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- B3a -->
+    <div style="margin-top: 16px;">
+      <div class="row-label">Ряд B3a — исправление через Builder</div>
+      <div class="row">
+        <div class="spacer"></div>
+        <div class="spacer"></div>
+        <div class="arr">
+          <div class="arr-line">
+            <div class="arr-label">Fix issues<br>(Builder) →</div>
+            <svg width="36" height="14"><line x1="2" y1="7" x2="30" y2="7" stroke="#c8a030" stroke-width="1.5"/><polygon points="30,3 36,7 30,11" fill="#c8a030"/></svg>
+          </div>
+        </div>
+        <div class="frame">
+          <div class="frame-head"><span class="frame-code">B3a</span><span class="frame-name">Fix Issues (Builder)</span></div>
+          <div class="frame-body">EP2 Builder открывается для проблемной машины. Sidebar показывает validation context. Исправь → ← Inventory.</div>
+          <div class="frame-footer">← Back to inventory → повтор B2</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /row-wrap -->
+
+  <!-- Annotation table EP3 -->
+  <div class="ann-strip">
+    <h3>Аннотации для стикеров (EP3)</h3>
+    <table class="ann-table">
+      <tr><th>Экран</th><th>Entry condition</th><th>Ключевые элементы</th><th>Действия пользователя</th></tr>
+      <tr>
+        <td><span class="code">S1</span></td>
+        <td>Home screen</td>
+        <td>Таблица 5 машин, колонка Channels с цветными точками-статусами</td>
+        <td>Тик чекбокса <span class="arrow-hint">→ S2</span> · клик строки <span class="arrow-hint">→ EP1·A1</span> · Edit <span class="arrow-hint">→ EP2·A1</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">S2</span></td>
+        <td>Выбраны 1+ строк</td>
+        <td>Строки подсвечены. Batch action bar снизу.</td>
+        <td>Publish selected <span class="arrow-hint">→ B1</span> · Cancel <span class="arrow-hint">→ S1</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">B1</span></td>
+        <td>Batch action bar активен</td>
+        <td>«N vehicles selected · Publish selected · Cancel»</td>
+        <td>Publish selected <span class="arrow-hint">→ B2</span> · Cancel <span class="arrow-hint">→ S1</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">B2</span></td>
+        <td>«Publish selected» из B1</td>
+        <td>Channel select для всех машин разом</td>
+        <td>Next: Validate → <span class="arrow-hint">→ B3</span> · Cancel <span class="arrow-hint">→ B1</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">B3</span></td>
+        <td>«Next: Validate» из B2</td>
+        <td>Матрица vehicle × channel, ✓/⚠ по ячейкам</td>
+        <td>Proceed anyway → <span class="arrow-hint">→ B4</span> · Fix issues → <span class="arrow-hint">→ B3a</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">B3a</span></td>
+        <td>«Fix issues (Builder)» из B3</td>
+        <td>EP2 Builder + sidebar validation hints</td>
+        <td>← Back to inventory <span class="arrow-hint">→ S1</span> (повторить batch)</td>
+      </tr>
+      <tr>
+        <td><span class="code">B4</span></td>
+        <td>«Proceed anyway» из B3</td>
+        <td>Прогресс-бар + таблица vehicle-по-vehicle</td>
+        <td><span class="action">Auto</span>: all OK <span class="arrow-hint">→ B5</span> · BMW в выборке <span class="arrow-hint">→ B6</span> · VW+Audi+Skoda <span class="arrow-hint">→ B7</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">B5</span></td>
+        <td>B4: все машины опубликованы</td>
+        <td>Зелёный хедер, все ✓</td>
+        <td>Close <span class="arrow-hint">→ S1</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">B6</span></td>
+        <td>B4: BMW 320d в выборке, Mobile.de + City24 падают</td>
+        <td>Оранжевый хедер, BMW строка: ✗ на двух каналах</td>
+        <td>Retry failed <span class="arrow-hint">→ B4</span> · Close <span class="arrow-hint">→ S1</span></td>
+      </tr>
+      <tr>
+        <td><span class="code">B7</span></td>
+        <td>B4: выборка VW Golf + Audi A4 + Skoda Octavia</td>
+        <td>Красный хедер, все ✗</td>
+        <td>Retry all <span class="arrow-hint">→ B4</span> · Close <span class="arrow-hint">→ S1</span></td>
+      </tr>
+    </table>
+  </div>
+</div><!-- /ep3 -->
+
+<p style="font-size:10px; color:#8aabb8; margin-top:20px; text-align:center;">
+  Vehicle Publishing Tool · Modera Salesfront · Figma file: iaEhGu1Guoo4vbQW63BDmz · Page: "Page 1.2 – 27.03.2026"
+</p>
+
+</body>
+</html>
