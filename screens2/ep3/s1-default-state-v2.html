@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>EP3 · S1 · Default State — Interactive</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1440px; height: 900px; overflow: hidden; background: #000; }
+
+.screen {
+  position: relative;
+  width: 1440px;
+  height: 900px;
+}
+.screen > img {
+  position: absolute;
+  top: 0; left: 0;
+  width: 1440px; height: 900px;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Hotspot = прозрачная кликабельная зона поверх PNG */
+.hs {
+  position: absolute;
+  cursor: pointer;
+}
+.hs:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 3px;
+  outline: 1px solid rgba(91, 189, 224, 0.4);
+}
+
+/* State navigator */
+.state-nav {
+  position: fixed;
+  bottom: 10px; right: 10px;
+  background: rgba(10, 24, 38, 0.9);
+  border-radius: 6px;
+  padding: 7px 12px;
+  z-index: 999;
+  color: #fff;
+  font: 10.5px/1.5 'Segoe UI', sans-serif;
+}
+.state-nav a {
+  color: #7de0f8;
+  margin: 0 4px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.state-nav a:hover { color: #fff; text-decoration: underline; }
+.state-nav strong { color: rgba(255,255,255,0.5); }
+</style>
+</head>
+<body>
+<div class="screen">
+
+  <!-- Pixel-perfect PNG из Figma -->
+  <img src="../images/ep3-s1.png" alt="EP3 S1 Default State" draggable="false">
+
+  <!-- ── Кликабельные зоны (hotspots) ────────────────────────────────── -->
+
+  <!-- Строки таблицы → S2 Single Vehicle Modal -->
+  <div class="hs" style="left:18px; top:218px; width:1163px; height:40px;"
+       onclick="go('s2-single-vehicle-modal.html')" title="Open vehicle card"></div>
+  <div class="hs" style="left:18px; top:258px; width:1163px; height:40px;"
+       onclick="go('s2-single-vehicle-modal.html')" title="Open vehicle card"></div>
+  <div class="hs" style="left:18px; top:298px; width:1163px; height:40px;"
+       onclick="go('s2-single-vehicle-modal.html')" title="Open vehicle card"></div>
+  <div class="hs" style="left:18px; top:338px; width:1163px; height:40px;"
+       onclick="go('s2-single-vehicle-modal.html')" title="Open vehicle card"></div>
+  <div class="hs" style="left:18px; top:378px; width:1163px; height:40px;"
+       onclick="go('s2-single-vehicle-modal.html')" title="Open vehicle card"></div>
+
+</div>
+
+<!-- State navigator -->
+<div class="state-nav">
+  <strong>EP3:</strong>
+  <a onclick="go('s1-default-state-v2.html')">S1</a>
+  <a onclick="go('s2-single-vehicle-modal.html')">S2</a>
+  <a onclick="go('b1-batch-action-bar.html')">B1</a>
+  <a onclick="go('b2-batch-channel-selector.html')">B2</a>
+  <a onclick="go('b3-validation-summary.html')">B3</a>
+  <a onclick="go('b3a-fix-issues-builder.html')">B3a</a>
+  <a onclick="go('b4-batch-progress.html')">B4</a>
+  <a onclick="go('b5-batch-success.html')">B5</a>
+  <a onclick="go('b6-batch-partial-errors.html')">B6</a>
+  <a onclick="go('b7-batch-all-failed.html')">B7</a>
+  · <a href="../../prototype/ep1-vehicle-card-v2.html">EP1</a>
+  · <a href="../../prototype/ep2-vehicle-builder-v2.html">EP2</a>
+</div>
+
+<script>
+function go(url) { window.location.href = url; }
+</script>
+</body>
+</html>
