@@ -2602,6 +2602,7 @@ export default function App() {
           button, [data-name^="button"] { cursor: pointer; }
           button:hover:not(:disabled), [data-name^="button"]:hover { filter: brightness(0.93); transition: filter 0.1s; }
           [data-name^="a.subnav-tab"]:hover, [data-name^="div.top-nav-link"]:hover { filter: brightness(0.92); transition: filter 0.1s; cursor: default; }
+          [data-name="div.top-nav-link"] { flex-direction: row-reverse; }
         `}</style>
         <BuilderScreen
           car={builderCar}
@@ -2638,6 +2639,7 @@ export default function App() {
         button, [data-name^="button"] { cursor: pointer; }
         button:hover:not(:disabled), [data-name^="button"]:hover { filter: brightness(0.93); transition: filter 0.1s; }
         [data-name^="a.subnav-tab"]:hover, [data-name^="div.top-nav-link"]:hover { filter: brightness(0.92); transition: filter 0.1s; cursor: default; }
+        [data-name="div.top-nav-link"] { flex-direction: row-reverse; }
         ${buildBatchCSS(selectedCarIds)}
       `}</style>
       <div className="size-full hide-modal" onClick={handleDashboardClick}>

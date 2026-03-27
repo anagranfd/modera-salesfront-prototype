@@ -92,7 +92,7 @@ function DivHelpBtn() {
         <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[5px] items-center px-[10px] relative size-full">
           <Frame />
           <div className="flex flex-col font-['Segoe_UI:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10.5px] text-[rgba(255,255,255,0.5)] whitespace-nowrap">
-            <p className="leading-[normal]">Hello there, I am here if need help</p>
+            <p className="leading-[normal]">Hello there! I'm here if you need help.</p>
           </div>
         </div>
       </div>
@@ -105,7 +105,7 @@ function SpanPubStatusPill() {
     <div className="bg-[rgba(255,255,255,0.1)] content-stretch flex items-center px-[9px] py-[3px] relative rounded-[10px] shrink-0" data-name="span.pub-status-pill">
       <div aria-hidden="true" className="absolute border border-[rgba(255,255,255,0.2)] border-solid inset-0 pointer-events-none rounded-[10px]" />
       <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[10.5px] text-[rgba(255,255,255,0.6)] whitespace-nowrap">
-        <p className="leading-[normal]">Publishing</p>
+        <p className="leading-[normal]">Sales Manager</p>
       </div>
     </div>
   );
@@ -299,10 +299,10 @@ function Frame2() {
   return (
     <div className="relative shrink-0">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[4px] items-center relative">
+        <CarFrontFill1 />
         <div className="flex flex-col font-['Segoe_UI:Semibold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#1e6080] text-[11.5px] whitespace-nowrap">
           <p className="leading-[normal]">Used Cars</p>
         </div>
-        <CarFrontFill1 />
       </div>
     </div>
   );
