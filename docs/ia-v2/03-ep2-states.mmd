@@ -1,0 +1,74 @@
+flowchart TD
+  classDef noSidebarState fill:#dcfce7,stroke:#22c55e,color:#14532d
+  classDef withSidebarState fill:#dbeafe,stroke:#3b82f6,color:#1e3a5f
+  classDef publishState  fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+  classDef progressState fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  classDef publishedState fill:#dcfce7,stroke:#22c55e,color:#14532d
+  classDef errorState   fill:#fee2e2,stroke:#ef4444,color:#7f1d1d
+  classDef overlayStyle fill:#f3e8ff,stroke:#a855f7,color:#4a1d96
+  classDef entryStyle   fill:#1e3a52,stroke:#1e3a52,color:#fff
+
+  OPEN_INV([\"Entry: ← Inventory / Edit button\\nOpens Builder\"])
+  OPEN_ERR([\"Entry: Go to Builder\\nfrom EP1·B2 Error Detail\"])
+
+  EP2A0[\"Ep2A0 · Builder (no sidebar)\\nFull-width editor\\nTabs: Overview · Photos · Specs · Extras\\n→ Publish to channels btn (top right)\"]
+
+  EP2A1[\"Ep2A1 · Builder + Publishing sidebar\\nLeft: vehicle editor (same tabs)\\nRight: publishing sidebar\"]
+
+  subgraph SIDEBAR [\"Publishing Sidebar (right panel)\"]
+    direction TB
+    S_EMPTY[\"Sidebar: Empty panel\\n'Not published'\\nNo channels selected\\n→ Add channels btn\"]
+    S_WITH[\"Sidebar: Channels panel\\n'Not published'\\nChannels listed with\\ncompleteness bars\\n→ Publish to channels btn\"]
+    S_PROG[\"Sidebar: Progress panel\\nBlue bar + per-channel spinner\\nauto-completes\"]
+    S_OK[\"Sidebar: Active Channels panel\\nAll channels: green dot\\nTimestamp · external link\\n→ Add channels · Unpublish…\"]
+    S_ERR[\"Sidebar: Partial Error panel\\nActive channels: green group\\nFailed channels: red group\\n→ Add channels · Publish · Unpublish…\"]
+
+    S_EMPTY --> S_WITH
+    S_WITH  --> S_PROG
+    S_PROG  -->|\"All succeed\"| S_OK
+    S_PROG  -->|\"Some fail\"| S_ERR
+    S_ERR   -->|\"Retry\"| S_PROG
+  end
+
+  CH_SEL[\"Channel Select overlay\\nCheckbox per channel\\nCompleteness bar per channel\\n→ Cancel · Next: Validate →\"]
+
+  UNPUB_SEL[\"Unpublish Select overlay\\nOrange header\\nPublished channels · pre-selected\\n→ Cancel · Unpublish to Channels →\"]
+
+  UNPUB_CFM[\"Confirm Unpublish dialog\\nOrange header\\nAlert: channel list + note\\n→ Cancel · Unpublish now\"]
+
+  OPEN_INV --> EP2A0
+  OPEN_ERR --> EP2A1
+
+  EP2A0 -->|\"Publish to channels\"| EP2A1
+  EP2A1 -->|\"✕ close sidebar\"| EP2A0
+
+  EP2A1 --- SIDEBAR
+
+  S_EMPTY -->|\"Add channels\"| CH_SEL
+  S_WITH  -->|\"Add channels\"| CH_SEL
+  S_OK    -->|\"Add channels\"| CH_SEL
+  S_ERR   -->|\"Add channels\"| CH_SEL
+
+  CH_SEL -->|\"Cancel\"| S_EMPTY
+  CH_SEL -->|\"Next: Validate →\"| S_WITH
+
+  S_OK  -->|\"Unpublish…\"| UNPUB_SEL
+  S_ERR -->|\"Unpublish…\"| UNPUB_SEL
+
+  UNPUB_SEL -->|\"Cancel\"| S_OK
+  UNPUB_SEL -->|\"Unpublish to Channels →\"| UNPUB_CFM
+  UNPUB_CFM -->|\"Cancel\"| UNPUB_SEL
+  UNPUB_CFM -->|\"Unpublish now (all removed)\"| S_EMPTY
+  UNPUB_CFM -->|\"Unpublish now (some remain)\"| S_OK
+
+  EP2A1 -->|\"← Inventory\"| INV([\"→ Inventory Table\"])
+  EP2A0 -->|\"← Inventory\"| INV
+
+  class OPEN_INV,OPEN_ERR,INV entryStyle
+  class EP2A0 noSidebarState
+  class EP2A1 withSidebarState
+  class S_EMPTY,S_WITH publishState
+  class S_PROG progressState
+  class S_OK publishedState
+  class S_ERR errorState
+  class CH_SEL,UNPUB_SEL,UNPUB_CFM overlayStyle

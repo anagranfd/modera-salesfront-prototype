@@ -1,0 +1,88 @@
+flowchart TD
+  classDef ep1Style  fill:#dbeafe,stroke:#3b82f6,color:#1e3a5f
+  classDef ep2Style  fill:#dcfce7,stroke:#22c55e,color:#14532d
+  classDef ep3Style  fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  classDef entryStyle fill:#1e3a52,stroke:#1e3a52,color:#fff
+  classDef overlayStyle fill:#f3e8ff,stroke:#a855f7,color:#4a1d96
+
+  SM(["👤 Sales Manager"])
+
+  subgraph INV ["Inventory Table — EP1·A1 / EP3·S1"]
+    direction LR
+    TABLE["📋 5 vehicles\nRow: checkbox · name · price · mileage · status · Edit"]
+    TABLE_SEL["Rows selected\n(checkboxes ticked)\nrow highlight #DCE8F0"]
+  end
+
+  subgraph EP1 ["EP1 — Single Vehicle Publish Dialog"]
+    direction TB
+    PUB_EMPTY["Empty panel\nNo channels yet"]
+    PUB_WITH["Channels panel\nChannels chosen · not published"]
+    PUB_PROG["Progress panel\nPublishing channel by channel"]
+    PUB_OK["Active Channels panel\nAll live · green dots"]
+    PUB_ERR["Partial Error panel\nActive + failed + leftover groups"]
+    PUB_EMPTY --> PUB_WITH
+    PUB_WITH --> PUB_PROG
+    PUB_PROG --> PUB_OK
+    PUB_PROG --> PUB_ERR
+  end
+
+  subgraph EP1OVL ["EP1 — Overlays"]
+    direction TB
+    CH_SEL["Channel Select (C2-add)\nCheckbox list · completeness bars"]
+    UNPUB_SEL["Unpublish Select (C2)\nPublished channels · pre-selected"]
+    UNPUB_CFM["Unpublish Confirm (C3)\nAlert · channels listed · orange header"]
+  end
+
+  subgraph EP2 ["EP2 — Vehicle Builder"]
+    direction TB
+    BLD_NO["Builder · no sidebar\n(Ep2A0)"]
+    BLD_SB["Builder + Publishing sidebar\n(Ep2A1)\nSame panel states as EP1"]
+    BLD_NO -->|"Publish to channels"| BLD_SB
+    BLD_SB -->|"✕ close sidebar"| BLD_NO
+  end
+
+  subgraph EP3BATCH ["EP3 — Batch Wizard"]
+    direction TB
+    BAR["B1: Batch Action Bar\nN selected · Publish selected"]
+    B2["B2: Channel Selector\nApplies to all selected vehicles"]
+    B3["B3: Validation Summary\nVehicle × channel matrix"]
+    B3A["B3a: Fix Issues\nBuilder opens · sidebar shows issues"]
+    B4["B4: Batch Progress\nBlue bar · per-vehicle table"]
+    B5["B5: Success\nGreen header · all ✓"]
+    B6["B6: Partial Errors\nOrange header · BMW fails"]
+    B7["B7: All Failed\nRed header · all ✗"]
+    BAR --> B2 --> B3
+    B3 --> B3A --> B4
+    B3 --> B4
+    B4 --> B5
+    B4 --> B6
+    B4 --> B7
+  end
+
+  SM -->|"Opens inventory"| TABLE
+  TABLE -->|"Clicks row"| PUB_EMPTY
+  TABLE -->|"Clicks Edit"| BLD_NO
+  TABLE -->|"Ticks checkboxes"| TABLE_SEL
+  TABLE_SEL -->|"Publish selected"| BAR
+
+  PUB_EMPTY -->|"Add channels"| CH_SEL
+  PUB_WITH  -->|"Add channels"| CH_SEL
+  PUB_OK    -->|"Add channels"| CH_SEL
+  PUB_ERR   -->|"Add channels"| CH_SEL
+  CH_SEL    -->|"Next: Validate"| PUB_WITH
+
+  PUB_OK  -->|"Unpublish…"| UNPUB_SEL
+  PUB_ERR -->|"Unpublish…"| UNPUB_SEL
+  UNPUB_SEL -->|"Unpublish to Channels"| UNPUB_CFM
+  UNPUB_CFM -->|"Cancel"| UNPUB_SEL
+  UNPUB_CFM -->|"Unpublish now"| PUB_OK
+
+  PUB_ERR -->|"Go to Builder"| BLD_SB
+  B3A     -->|"Back to inventory"| TABLE
+
+  class TABLE,TABLE_SEL ep3Style
+  class PUB_EMPTY,PUB_WITH,PUB_PROG,PUB_OK,PUB_ERR ep1Style
+  class CH_SEL,UNPUB_SEL,UNPUB_CFM overlayStyle
+  class BLD_NO,BLD_SB ep2Style
+  class BAR,B2,B3,B3A,B4,B5,B6,B7 ep3Style
+  class SM entryStyle

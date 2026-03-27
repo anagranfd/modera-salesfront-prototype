@@ -1,0 +1,76 @@
+flowchart TD
+  classDef emptyState   fill:#f1f5f9,stroke:#94a3b8,color:#334155
+  classDef withState    fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+  classDef progressState fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  classDef publishedState fill:#dcfce7,stroke:#22c55e,color:#14532d
+  classDef errorState   fill:#fee2e2,stroke:#ef4444,color:#7f1d1d
+  classDef overlayStyle fill:#f3e8ff,stroke:#a855f7,color:#4a1d96
+  classDef entryStyle   fill:#1e3a52,stroke:#1e3a52,color:#fff
+  classDef decStyle     fill:#fffbeb,stroke:#f59e0b,color:#78350f
+
+  OPEN(["Entry: click vehicle row\nDialog opens over inventory"])
+
+  %% ── Panel states (left side of dialog) ──────────────────────────────────────
+
+  EMPTY["A1 · Empty panel\n'Not published'\nNo channels selected\n→ Add channels btn"]
+
+  WITH["A1b · Channels panel\n'Not published'\nChannels listed with\ncompleteness bars\n→ Publish to channels btn"]
+
+  PROG["A4 · Progress panel\nBlue bar + per-channel spinner\nAdvances 900ms per channel\nauto-completes"]
+
+  OK["C1 · Active Channels panel\nAll channels: green dot\nTimestamp · external link\n→ Add channels · Unpublish…"]
+
+  ERR["B1 · Partial Error panel\nActive channels: green group\nFailed channels: red group\n(expand arrow → error detail)\nLeftover: grey group\n→ Add channels · Publish · Unpublish…"]
+
+  %% ── Overlay dialogs ──────────────────────────────────────────────────────────
+
+  CH_SEL["Channel Select overlay\nFilters out already-published\nCheckbox per channel\nCompleteness bar per channel\n→ Cancel · Next: Validate →"]
+
+  ERR_DETAIL["B2 · Error detail\n(inline expand in B1)\nError description\n→ Go to Builder"]
+
+  UNPUB_SEL["C2 · Unpublish Select overlay\nOrange header · exclamation icon\nPublished channels · pre-selected\nRed checkboxes\n→ Cancel · Unpublish to Channels →"]
+
+  UNPUB_CFM["C3 · Confirm Unpublish dialog\nOrange header\nAlert: channel list + note\n→ Cancel (back to C2) · Unpublish now"]
+
+  %% ── Transitions ─────────────────────────────────────────────────────────────
+
+  OPEN --> EMPTY
+
+  EMPTY -->|"Add channels"| CH_SEL
+  WITH  -->|"Add channels"| CH_SEL
+  OK    -->|"Add channels"| CH_SEL
+  ERR   -->|"Add channels"| CH_SEL
+
+  CH_SEL -->|"Cancel"| EMPTY
+  CH_SEL -->|"Next: Validate →\n(first publish)"| WITH
+  CH_SEL -->|"Next: Validate →\n(already has published channels)"| ERR
+
+  WITH -->|"Publish to channels"| PROG
+
+  PROG -->|"All channels succeed\n(VW Golf · Toyota · Audi · Skoda)"| OK
+  PROG -->|"Some channels fail\n(BMW 320d:\nMobile.de + City24 fail)"| ERR
+
+  ERR -->|"Publish to channels\n(retry failed + leftover)"| PROG
+  ERR -->|"expand error arrow"| ERR_DETAIL
+  ERR_DETAIL -->|"collapse"| ERR
+  ERR_DETAIL -->|"Go to Builder →"| EP2(["→ EP2 Builder\n(sidebar open, error context)"])
+
+  OK  -->|"Unpublish…"| UNPUB_SEL
+  ERR -->|"Unpublish…"| UNPUB_SEL
+
+  UNPUB_SEL -->|"Cancel"| OK
+  UNPUB_SEL -->|"Unpublish to Channels →"| UNPUB_CFM
+  UNPUB_CFM -->|"Cancel"| UNPUB_SEL
+
+  UNPUB_CFM -->|"Unpublish now\n(some channels remain published)"| OK
+  UNPUB_CFM -->|"Unpublish now\n(some published + some failed remain)"| ERR
+  UNPUB_CFM -->|"Unpublish now\n(all channels removed)"| EMPTY
+
+  class EMPTY emptyState
+  class WITH withState
+  class PROG progressState
+  class OK publishedState
+  class ERR,ERR_DETAIL errorState
+  class CH_SEL,UNPUB_SEL,UNPUB_CFM overlayStyle
+  class OPEN entryStyle
+  class EP2 entryStyle
