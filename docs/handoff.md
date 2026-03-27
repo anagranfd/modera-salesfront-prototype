@@ -2,7 +2,7 @@
 
 **Feature:** Publishing vehicles to external sales channels (Auto24, Mobile.de, SS.lv, Autoplius, City24)
 **Role covered:** Used Car Sales Manager
-**Prototype:** https://anagranfd.github.io/modera-salesfront-prototype/figma-make-v3/
+**Prototype:** https://anagranfd.github.io/modera-salesfront-prototype/v3/
 
 ---
 

@@ -18,7 +18,7 @@ The design covers all three integration points specified in the brief:
 
 ## Live Prototype
 
-**[→ Open interactive prototype](https://anagranfd.github.io/modera-salesfront-prototype/figma-make-v3/)**
+**[→ Open interactive prototype](https://anagranfd.github.io/modera-salesfront-prototype/v3/)**
 
 The prototype is a fully interactive React application. All publishing flows are clickable.
 
@@ -49,6 +49,7 @@ The prototype opens on the Inventory screen. Start any scenario from there:
 
 | Document | Description |
 |---|---|
+| [`docs/annotations-2.md`](docs/annotations-2.md) | **HiFi prototype annotations v2** — screen-by-screen breakdown of all states and interactions |
 | [`docs/handoff.md`](docs/handoff.md) | **Engineering handoff spec** — all states, copy, transitions, edge cases |
 | [`docs/scenarios.md`](docs/scenarios.md) | User-facing scenario walkthroughs (7 scenarios) |
 | [`docs/ia-v2/01-overview.mmd`](docs/ia-v2/01-overview.mmd) | Full system IA — Sales Manager → all 3 entry points |
