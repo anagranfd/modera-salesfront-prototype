@@ -1127,7 +1127,7 @@ function BatchProgressModal({ selectedCarIds, selectedChannels, onDone }: {
   selectedCarIds: string[]; selectedChannels: string[]; onDone: () => void;
 }) {
   const selectedCars = CARS.filter(c => selectedCarIds.includes(c.id));
-  const [step, setStep] = useState(0); // current car being published (0 = none yet)
+  const [step, setStep] = useState(0); // cars completed so far
 
   useEffect(() => {
     const timers: ReturnType<typeof setTimeout>[] = [];
@@ -1142,23 +1142,42 @@ function BatchProgressModal({ selectedCarIds, selectedChannels, onDone }: {
   const done = step * selectedChannels.length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
+  function cellContent(carIdx: number) {
+    if (carIdx < step) return <span className="text-[#2d8a4e] text-[11px]">✓</span>;
+    if (carIdx === step) return (
+      <img alt="" className="size-[11px] object-cover pointer-events-none" src={imgArrowCircle3151}
+        style={{ animation: "spin 1.5s linear infinite" }} />
+    );
+    return null;
+  }
+
   return (
     <div className="absolute inset-0 flex items-center justify-center" style={{ background: "rgba(20,40,60,0.6)", zIndex: 20 }}>
       <div className="bg-white content-stretch flex flex-col items-start max-w-[720px] min-w-[560px] p-px relative rounded-[4px] shrink-0 w-[576px]">
         <div aria-hidden="true" className="absolute border border-[#8aabbd] border-solid inset-0 pointer-events-none rounded-[4px] shadow-[0px_8px_32px_0px_rgba(0,0,0,0.35),0px_2px_8px_0px_rgba(0,0,0,0.2)]" />
-        {/* Title header */}
+        {/* Title header — teal */}
         <div className="relative shrink-0 w-full">
           <div className="content-stretch flex flex-col items-start p-[8px] relative w-full">
             <div className="bg-gradient-to-b from-[#5fcee5] relative rounded-[4px] shrink-0 to-[#50c2d6] w-full">
               <div className="content-stretch flex items-center justify-between px-[12px] py-[10px] relative w-full">
-                <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[13px] text-shadow-[0px_1px_2px_rgba(0,0,0,0.3)] text-white whitespace-nowrap">
-                  <p className="leading-[normal]">Batch publish: Step 3 of 3: Publishing…</p>
+                <div className="flex items-center gap-[6px]">
+                  <div className="relative shrink-0 size-[16px]" style={{ animation: "spin 1.5s linear infinite" }}>
+                    <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={imgArrowCircle3151} />
+                  </div>
+                  <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[13px] text-shadow-[0px_1px_2px_rgba(0,0,0,0.3)] text-white whitespace-nowrap">
+                    <p className="leading-[normal]">Batch publish: Step 3 of 3</p>
+                  </div>
                 </div>
+                <button onClick={onDone} className="cursor-pointer p-[2px] opacity-50">
+                  <div className="flex flex-col font-['Arial:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[16px] text-[rgba(255,255,255,0.8)] text-center whitespace-nowrap">
+                    <p className="leading-[16px]">✕</p>
+                  </div>
+                </button>
               </div>
             </div>
           </div>
         </div>
-        {/* Step wizard — step 3 active */}
+        {/* Step wizard */}
         <div className="relative shrink-0 w-full">
           <div className="content-stretch flex flex-col items-start px-[8px] relative w-full">
             <div className="bg-gradient-to-b from-[#f0f6fa] h-[31px] relative rounded-[4px] shrink-0 to-[#e4edf5] w-full">
@@ -1174,32 +1193,62 @@ function BatchProgressModal({ selectedCarIds, selectedChannels, onDone }: {
             </div>
           </div>
         </div>
-        {/* Progress body */}
+        {/* Body */}
         <div className="relative shrink-0 w-full">
-          <div className="content-stretch flex flex-col gap-[12px] items-start px-[8px] py-[16px] relative w-full">
-            <div className="content-stretch flex flex-col gap-[6px] items-start relative w-full">
-              <div className="flex items-center gap-[8px] w-full">
-                <div className="flex flex-col font-['Segoe_UI:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#1a3347] text-[11.5px]">
-                  <p className="leading-[normal]">Publishing {done} of {total} operations…</p>
+          <div className="content-stretch flex flex-col gap-[8px] items-start px-[8px] py-[8px] relative w-full">
+            {/* Progress bar — same style as EP1·A4 */}
+            <div className="content-stretch flex flex-col gap-[4px] items-start px-[4px] relative w-full">
+              <div className="content-stretch flex h-[15px] items-start justify-between relative shrink-0 w-full">
+                <div className="flex flex-col font-['Segoe_UI:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#5a7080] text-[11px] whitespace-nowrap">
+                  <p className="leading-[normal]">{done} of {total} operations</p>
+                </div>
+                <div className="flex flex-col font-['Segoe_UI:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#5a7080] text-[11px] whitespace-nowrap">
+                  <p className="leading-[normal]">{pct}%</p>
                 </div>
               </div>
-              <div className="bg-[#e4edf5] h-[6px] relative rounded-full shrink-0 w-full overflow-hidden">
-                <div className="bg-[#2d8a4e] h-full rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
+              <div className="bg-[#c8dce8] h-[16px] relative rounded-[8px] shrink-0 w-full">
+                <div className="content-stretch flex flex-col items-start justify-center overflow-clip p-px relative rounded-[inherit] size-full">
+                  <div className="bg-gradient-to-r flex-[1_0_0] from-[#5bbde0] min-h-px relative rounded-[8px] to-[#3a9ec8]" style={{ width: `${pct}%`, transition: "width 0.7s ease" }} />
+                </div>
+                <div aria-hidden="true" className="absolute border border-[#aec5d4] border-solid inset-0 pointer-events-none rounded-[8px]" />
               </div>
             </div>
-            <div className="content-stretch flex flex-col gap-[4px] items-start relative w-full">
-              {selectedCars.map((car, i) => (
-                <div key={car.id} className="content-stretch flex items-center gap-[6px] relative shrink-0 w-full">
-                  <div className="relative shrink-0 w-[18px] h-[14px] flex items-center justify-center">
-                    {i < step
-                      ? <span className="text-[#2d8a4e] text-[11px]">✓</span>
-                      : i === step
-                        ? <span className="text-[#2d7fa8] text-[11px] animate-pulse">●</span>
-                        : <span className="text-[#8a9eac] text-[11px]">○</span>}
+            {/* Results table */}
+            <div className="bg-white content-stretch flex flex-col items-start relative shrink-0 w-full overflow-x-auto">
+              {/* Header row */}
+              <div className="content-stretch flex items-start justify-center relative shrink-0 w-full">
+                <div className="bg-gradient-to-b content-stretch flex flex-col from-[#ddeef7] items-start p-[9px] relative shrink-0 to-[#c8dce8] w-[180px]">
+                  <div aria-hidden="true" className="absolute border border-[#aec5d4] border-solid inset-0 pointer-events-none" />
+                  <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#5a7080] text-[11px] whitespace-nowrap"><p className="leading-[normal]">Vehicle</p></div>
+                </div>
+                {selectedChannels.map(ch => (
+                  <div key={ch} className="bg-gradient-to-b flex-1 from-[#ddeef7] min-h-px min-w-px relative to-[#c8dce8]">
+                    <div aria-hidden="true" className="absolute border-[#aec5d4] border-b border-r border-solid border-t inset-0 pointer-events-none" />
+                    <div className="content-stretch flex flex-col items-start pl-[8px] pr-[9px] py-[9px] relative w-full">
+                      <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#5a7080] text-[11px] whitespace-nowrap"><p className="leading-[normal]">{ch}</p></div>
+                    </div>
                   </div>
-                  <div className={`flex flex-col font-['Segoe_UI:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[11.5px] ${i < step ? "text-[#2d8a4e]" : i === step ? "text-[#1a3347]" : "text-[#8a9eac]"}`}>
-                    <p className="leading-[normal]">{car.make} {car.model} — {selectedChannels.join(", ")}</p>
+                ))}
+              </div>
+              {/* Data rows */}
+              {selectedCars.map((car, idx) => (
+                <div key={car.id} className="content-stretch flex items-start justify-center relative shrink-0 w-full" style={{ borderBottom: "1px solid #e4edf5", background: idx % 2 === 1 ? "#f0f6fa" : "#fafcfe" }}>
+                  <div className="relative shrink-0 w-[180px]" style={{ background: "inherit" }}>
+                    <div aria-hidden="true" className="absolute border-[#e4edf5] border-l border-r border-solid inset-0 pointer-events-none" />
+                    <div className="content-stretch flex flex-col items-start justify-center p-[9px] relative w-full">
+                      <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#1a2e3d] text-[11.5px] whitespace-nowrap">
+                        <p className="leading-[normal]">{car.make} {car.model}</p>
+                      </div>
+                    </div>
                   </div>
+                  {selectedChannels.map(ch => (
+                    <div key={ch} className="flex-1 min-h-px min-w-px relative" style={{ background: "inherit" }}>
+                      <div aria-hidden="true" className="absolute border-[#e4edf5] border-r border-solid inset-0 pointer-events-none" />
+                      <div className="content-stretch flex flex-col items-center justify-center pl-[8px] pr-[9px] py-[9px] relative w-full h-full">
+                        {cellContent(idx)}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>
