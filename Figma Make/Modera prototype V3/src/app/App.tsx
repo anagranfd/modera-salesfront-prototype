@@ -20,6 +20,7 @@ import imgExclamation from "figma:asset/exclamation.png";
 import imgExclamationRed from "figma:asset/exclamation-red.png";
 import imgExclamationRedFrame from "figma:asset/exclamation-red-frame.png";
 import imgTick from "figma:asset/tick.png";
+import imgTickRed from "figma:asset/tick-red.png";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const ALL_CHANNELS = ["Auto24", "Mobile.de", "SS.lv", "Autoplius", "City24"];
@@ -471,14 +472,14 @@ function ProgressPanel({ channels, progressStep }: { channels: string[]; progres
   );
 }
 
-function PublishedPanel({ channels, onAddChannels }: { channels: string[]; onAddChannels: () => void }) {
+function PublishedPanel({ channels, onAddChannels, onUnpublish }: { channels: string[]; onAddChannels: () => void; onUnpublish?: () => void }) {
   return (
     <div className="content-stretch flex flex-[1_0_0] flex-col items-start min-h-px min-w-px relative self-stretch">
       <div className="bg-white content-stretch flex flex-col items-start p-px relative rounded-[3px] shrink-0 w-full">
         <div aria-hidden="true" className="absolute border border-[#aec5d4] border-solid inset-0 pointer-events-none rounded-[3px]" />
         <PanelHeader title="Active channels">
           <AddChannelsBtn onClick={onAddChannels} />
-          <button className="content-stretch flex h-[24px] items-center justify-center pb-[5px] pt-[3px] px-[11px] relative rounded-[3px] shrink-0 cursor-pointer">
+          <button onClick={onUnpublish} className="content-stretch flex h-[24px] items-center justify-center pb-[5px] pt-[3px] px-[11px] relative rounded-[3px] shrink-0 cursor-pointer">
             <div aria-hidden="true" className="absolute bg-gradient-to-b from-[#f5f9fc] inset-0 pointer-events-none rounded-[3px] to-[#ddeef7]" />
             <div aria-hidden="true" className="absolute border border-[#8aabbd] border-solid inset-0 pointer-events-none rounded-[3px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]" />
             <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#b03030] text-[11px] text-center text-shadow-[0px_1px_0px_rgba(255,255,255,0.5)] whitespace-nowrap">
@@ -511,11 +512,11 @@ function PublishedPanel({ channels, onAddChannels }: { channels: string[]; onAdd
 // Partial error panel: published + failed + unpublished (leftover)
 function PartialErrorPanel({
   publishedChannels, failedChannels, leftoverChannels,
-  expandedErrors, onToggleError, onAddChannels, onPublish, onGoToBuilder,
+  expandedErrors, onToggleError, onAddChannels, onPublish, onGoToBuilder, onUnpublish,
 }: {
   publishedChannels: string[]; failedChannels: string[]; leftoverChannels: string[];
   expandedErrors: string[]; onToggleError: (ch: string) => void;
-  onAddChannels: () => void; onPublish: () => void; onGoToBuilder?: () => void;
+  onAddChannels: () => void; onPublish: () => void; onGoToBuilder?: () => void; onUnpublish?: () => void;
 }) {
   return (
     <div className="content-stretch flex flex-[1_0_0] flex-col items-start min-h-px min-w-px relative self-stretch gap-[10px]">
@@ -524,7 +525,7 @@ function PartialErrorPanel({
         <div className="bg-white content-stretch flex flex-col items-start p-px relative rounded-[3px] shrink-0 w-full">
           <div aria-hidden="true" className="absolute border border-[#aec5d4] border-solid inset-0 pointer-events-none rounded-[3px]" />
           <PanelHeader title="Active channels">
-            <button className="content-stretch flex h-[24px] items-center justify-center pb-[5px] pt-[3px] px-[11px] relative rounded-[3px] shrink-0 cursor-pointer">
+            <button onClick={onUnpublish} className="content-stretch flex h-[24px] items-center justify-center pb-[5px] pt-[3px] px-[11px] relative rounded-[3px] shrink-0 cursor-pointer">
               <div aria-hidden="true" className="absolute bg-gradient-to-b from-[#f5f9fc] inset-0 pointer-events-none rounded-[3px] to-[#ddeef7]" />
               <div aria-hidden="true" className="absolute border border-[#8aabbd] border-solid inset-0 pointer-events-none rounded-[3px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]" />
               <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#b03030] text-[11px] text-center text-shadow-[0px_1px_0px_rgba(255,255,255,0.5)] whitespace-nowrap"><p className="leading-[15.4px]">Unpublish…</p></div>
@@ -1876,6 +1877,193 @@ function BatchValidationModal({ selectedCarIds, selectedChannels, onBack, onProc
   );
 }
 
+// ── Unpublish Channel Select Modal — EP1·C2 ───────────────────────────────────
+
+function UnpublishChannelSelectModal({ carName, publishedChannels, onClose, onNext }: {
+  carName: string; publishedChannels: string[];
+  onClose: () => void; onNext: (channels: string[]) => void;
+}) {
+  const [checked, setChecked] = useState<string[]>([...publishedChannels]);
+  const toggle = (ch: string) => setChecked((prev) => prev.includes(ch) ? prev.filter((c) => c !== ch) : [...prev, ch]);
+
+  return (
+    <div className="absolute bg-[rgba(20,40,60,0.55)] content-stretch flex inset-0 items-center justify-center z-20" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="bg-white content-stretch flex flex-col items-start max-w-[720px] min-w-[560px] p-px relative rounded-[4px] shrink-0 w-[574px]">
+        <div aria-hidden="true" className="absolute border border-[#8aabbd] border-solid inset-0 pointer-events-none rounded-[4px] shadow-[0px_8px_32px_0px_rgba(0,0,0,0.35),0px_2px_8px_0px_rgba(0,0,0,0.2)]" />
+        {/* Header */}
+        <div className="content-stretch flex flex-col items-start p-[8px] relative w-full">
+          <div className="bg-gradient-to-b from-[#c87820] relative rounded-[4px] shrink-0 to-[#8a4a10] w-full">
+            <div className="content-stretch flex items-center justify-between px-[12px] py-[10px] relative w-full">
+              <div className="flex items-center gap-[8px]">
+                <img alt="" className="relative shrink-0 size-[16px] object-cover pointer-events-none" src={imgExclamation} />
+                <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[13px] text-shadow-[0px_1px_2px_rgba(0,0,0,0.3)] text-white whitespace-nowrap">
+                  <p className="leading-[normal]">Unpublish channels — {carName}</p>
+                </div>
+              </div>
+              <button onClick={onClose} className="cursor-pointer p-[2px]">
+                <div className="flex flex-col font-['Arial:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[16px] text-[rgba(255,255,255,0.8)] text-center whitespace-nowrap">
+                  <p className="leading-[16px]">✕</p>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+        {/* Channel list */}
+        <div className="content-stretch flex flex-col gap-[6px] items-start max-h-[320px] overflow-auto px-[16px] py-[8px] relative w-full">
+          <div className="flex flex-col font-['Segoe_UI:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#5a7080] text-[11.5px] w-full">
+            <p className="leading-[normal]">Select which channels to unpublish from.</p>
+          </div>
+          <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-full">
+            {publishedChannels.map((ch) => {
+              const isChecked = checked.includes(ch);
+              return (
+                <button key={ch} onClick={() => toggle(ch)} className="h-[32px] relative rounded-[3px] shrink-0 w-full cursor-pointer text-left">
+                  <div aria-hidden="true" className="absolute inset-0 pointer-events-none rounded-[3px]" style={{ background: isChecked ? "#fde8e8" : "#fafcfe", border: `1px solid ${isChecked ? "#d07070" : "#aec5d4"}` }} />
+                  <div className="flex flex-row items-center size-full">
+                    <div className="content-stretch flex gap-[8px] items-center px-[9px] py-[10px] relative size-full">
+                      <div className="h-[19px] relative shrink-0 w-[20px]">
+                        <div className="content-stretch flex flex-col items-start pl-[4px] pr-[3px] py-[3px] relative size-full">
+                          <div className="relative shrink-0">
+                            <div className="bg-white relative rounded-[2.5px] shrink-0 size-[13px]">
+                              <div aria-hidden="true" className="absolute border border-[#767676] border-solid inset-0 pointer-events-none rounded-[2.5px]" />
+                            </div>
+                            {isChecked && (
+                              <div className="absolute left-[1.4px] overflow-clip size-[14px] top-[-1.2px]">
+                                <div className="absolute inset-[12.71%_0_12.72%_0]">
+                                  <div className="absolute inset-[0_-7.14%_-19.16%_-7.14%]">
+                                    <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 16 12.44">
+                                      <path d={CHECK_PATH} fill="#b03030" />
+                                    </svg>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#1a2e3d] text-[12px] whitespace-nowrap">
+                        <p className="leading-[normal]">{ch}</p>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        {/* Footer */}
+        <div className="content-stretch flex flex-col items-start p-[8px] relative w-full">
+          <div className="bg-gradient-to-b from-[#f0f6fa] h-[40px] relative rounded-[4px] shrink-0 to-[#e4edf5] w-full">
+            <div className="flex flex-row items-center size-full">
+              <div className="content-stretch flex items-center justify-between p-[8px] relative size-full">
+                <button onClick={onClose} className="h-[24px] relative rounded-[3px] shrink-0 cursor-pointer">
+                  <div aria-hidden="true" className="absolute bg-gradient-to-b from-[#f5f9fc] inset-0 pointer-events-none rounded-[3px] to-[#ddeef7]" />
+                  <div aria-hidden="true" className="absolute border border-[#8aabbd] border-solid inset-0 pointer-events-none rounded-[3px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]" />
+                  <div className="content-stretch flex gap-[4px] h-full items-center justify-center px-[11px] py-[3px] relative">
+                    <BtnIcon src={imgCrossWhite1} />
+                    <BtnLabel text="Cancel" />
+                  </div>
+                  <div className="absolute inset-0 pointer-events-none rounded-[inherit] shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.7)]" />
+                </button>
+                <button onClick={() => checked.length > 0 && onNext(checked)} disabled={checked.length === 0} className={`h-[24px] relative rounded-[3px] shrink-0 cursor-pointer ${checked.length === 0 ? "opacity-50 cursor-not-allowed" : ""}`}>
+                  <div aria-hidden="true" className="absolute bg-gradient-to-b from-[#f5f9fc] inset-0 pointer-events-none rounded-[3px] to-[#ddeef7]" />
+                  <div aria-hidden="true" className="absolute border border-[#8aabbd] border-solid inset-0 pointer-events-none rounded-[3px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]" />
+                  <div className="content-stretch flex gap-[4px] h-full items-center justify-center px-[11px] py-[3px] relative">
+                    <BtnIcon src={imgTickRed} />
+                    <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#b03030] text-[11px] text-center text-shadow-[0px_1px_0px_rgba(255,255,255,0.5)] whitespace-nowrap">
+                      <p className="leading-[15.4px]">Unpublish to Channels ({checked.length}) →</p>
+                    </div>
+                  </div>
+                  <div className="absolute inset-0 pointer-events-none rounded-[inherit] shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.7)]" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Unpublish Confirm Modal — EP1·C3 ──────────────────────────────────────────
+
+function UnpublishConfirmModal({ channels, onCancel, onConfirm }: {
+  channels: string[];
+  onCancel: () => void; onConfirm: () => void;
+}) {
+  return (
+    <div className="absolute bg-[rgba(20,40,60,0.55)] content-stretch flex inset-0 items-center justify-center z-20">
+      <div className="bg-white content-stretch flex flex-col items-start p-px relative rounded-[4px] shrink-0 w-[560px]">
+        <div aria-hidden="true" className="absolute border border-[#8aabbd] border-solid inset-0 pointer-events-none rounded-[4px] shadow-[0px_8px_32px_0px_rgba(0,0,0,0.35),0px_2px_8px_0px_rgba(0,0,0,0.2)]" />
+        {/* Header */}
+        <div className="content-stretch flex flex-col items-start p-[8px] relative w-full">
+          <div className="bg-gradient-to-b from-[#c87820] relative rounded-[4px] shrink-0 to-[#8a4a10] w-full">
+            <div className="content-stretch flex items-center justify-between px-[12px] py-[10px] relative w-full">
+              <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[13px] text-shadow-[0px_1px_2px_rgba(0,0,0,0.3)] text-white whitespace-nowrap">
+                <p className="leading-[normal]">Confirm unpublish</p>
+              </div>
+              <button onClick={onCancel} className="cursor-pointer p-[2px]">
+                <div className="flex flex-col font-['Arial:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[16px] text-[rgba(255,255,255,0.8)] text-center whitespace-nowrap">
+                  <p className="leading-[16px]">✕</p>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+        {/* Body */}
+        <div className="content-stretch flex items-start px-[16px] py-[8px] relative w-full">
+          {/* Alert box — icon + all text inside, matching Figma div.alert */}
+          <div className="content-stretch flex gap-[8px] items-start px-[10px] py-[10px] relative w-full rounded-[3px]" style={{ background: "#eef2f5", border: "1px solid #e0c060" }}>
+            <img alt="" className="relative shrink-0 size-[16px] object-cover pointer-events-none mt-[1px]" src={imgExclamation} />
+            <div className="flex flex-col gap-[2px] min-w-0 flex-1">
+              <div className="font-['Segoe_UI:Bold',sans-serif] text-[#7a5010] text-[11.5px] leading-[15px]">
+                Unpublish from {channels.length} channel{channels.length !== 1 ? "s" : ""}?
+              </div>
+              <div className="flex flex-col items-start w-full">
+                {channels.map((ch) => (
+                  <div key={ch} className="font-['Segoe_UI:Regular',sans-serif] text-[#7a5010] text-[11.5px] leading-[15px]">
+                    · {ch}
+                  </div>
+                ))}
+              </div>
+              <div className="font-['Segoe_UI:Regular',sans-serif] text-[#7a5010] text-[11px] leading-[14px]">
+                This will remove the listing immediately.
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Footer */}
+        <div className="content-stretch flex flex-col items-start p-[8px] relative w-full">
+          <div className="bg-gradient-to-b from-[#f0f6fa] h-[40px] relative rounded-[4px] shrink-0 to-[#e4edf5] w-full">
+            <div className="flex flex-row items-center size-full">
+              <div className="content-stretch flex items-center justify-between p-[8px] relative size-full">
+                <button onClick={onCancel} className="h-[24px] relative rounded-[3px] shrink-0 cursor-pointer">
+                  <div aria-hidden="true" className="absolute bg-gradient-to-b from-[#f5f9fc] inset-0 pointer-events-none rounded-[3px] to-[#ddeef7]" />
+                  <div aria-hidden="true" className="absolute border border-[#8aabbd] border-solid inset-0 pointer-events-none rounded-[3px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]" />
+                  <div className="content-stretch flex gap-[4px] h-full items-center justify-center px-[11px] py-[3px] relative">
+                    <BtnIcon src={imgCrossWhite1} />
+                    <BtnLabel text="Cancel" />
+                  </div>
+                  <div className="absolute inset-0 pointer-events-none rounded-[inherit] shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.7)]" />
+                </button>
+                <button onClick={onConfirm} className="h-[24px] relative rounded-[3px] shrink-0 cursor-pointer">
+                  <div aria-hidden="true" className="absolute bg-gradient-to-b from-[#f5f9fc] inset-0 pointer-events-none rounded-[3px] to-[#ddeef7]" />
+                  <div aria-hidden="true" className="absolute border border-[#8aabbd] border-solid inset-0 pointer-events-none rounded-[3px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]" />
+                  <div className="content-stretch flex gap-[4px] h-full items-center justify-center px-[11px] py-[3px] relative">
+                    <BtnIcon src={imgTickRed} />
+                    <BtnLabel text="Unpublish now" color="#2a4a60" />
+                  </div>
+                  <div className="absolute inset-0 pointer-events-none rounded-[inherit] shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.7)]" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Channel Select Modal ──────────────────────────────────────────────────────
 
 function ChannelSelectModal({ carName, currentChannels, publishedChannels, onClose, onValidate }: {
@@ -2007,22 +2195,24 @@ function ChannelSelectModal({ carName, currentChannels, publishedChannels, onClo
 }
 
 // ── Main Publish Modal ────────────────────────────────────────────────────────
-function PublishModal({ car, carState, progressStep, showChannelSelect, expandedErrors, onClose, onAddChannels, onPublish, onCloseChannelSelect, onValidate, onToggleError, onGoToBuilder }: {
+function PublishModal({ car, carState, progressStep, showChannelSelect, showUnpublishSelect, unpublishChannels, showUnpublishConfirm, expandedErrors, onClose, onAddChannels, onPublish, onCloseChannelSelect, onValidate, onToggleError, onGoToBuilder, onOpenUnpublish, onUnpublishNext, onUnpublishBack, onUnpublishNow }: {
   car: (typeof CARS)[0]; carState: CarState; progressStep: number;
-  showChannelSelect: boolean; expandedErrors: string[];
+  showChannelSelect: boolean; showUnpublishSelect: boolean; unpublishChannels: string[]; showUnpublishConfirm: boolean; expandedErrors: string[];
   onClose: () => void; onAddChannels: () => void; onPublish: () => void;
   onCloseChannelSelect: () => void; onValidate: (ch: string[]) => void;
   onToggleError: (ch: string) => void; onGoToBuilder: () => void;
+  onOpenUnpublish: () => void; onUnpublishNext: (ch: string[]) => void; onUnpublishBack: () => void; onUnpublishNow: () => void;
 }) {
   const { channels, publishState, publishedChannels, failedChannels } = carState;
   const leftoverChannels = channels.filter(ch => !publishedChannels.includes(ch) && !failedChannels.includes(ch));
+  const carLabel = `${car.year} ${car.make} ${car.model} — ${car.reg}`;
 
   function renderBody() {
     if (publishState === "progress") return <ProgressPanel channels={channels} progressStep={progressStep} />;
-    if (publishState === "published") return <PublishedPanel channels={publishedChannels} onAddChannels={onAddChannels} />;
+    if (publishState === "published") return <PublishedPanel channels={publishedChannels} onAddChannels={onAddChannels} onUnpublish={onOpenUnpublish} />;
     if (publishState === "partial_error") return (
       <PartialErrorPanel publishedChannels={publishedChannels} failedChannels={failedChannels} leftoverChannels={leftoverChannels}
-        expandedErrors={expandedErrors} onToggleError={onToggleError} onAddChannels={onAddChannels} onPublish={onPublish} onGoToBuilder={onGoToBuilder} />
+        expandedErrors={expandedErrors} onToggleError={onToggleError} onAddChannels={onAddChannels} onPublish={onPublish} onGoToBuilder={onGoToBuilder} onUnpublish={onOpenUnpublish} />
     );
     if (channels.length === 0) return <EmptyPublishPanel onAddChannels={onAddChannels} />;
     return <WithChannelsPanel channels={channels} onAddChannels={onAddChannels} onPublish={onPublish} />;
@@ -2061,19 +2251,29 @@ function PublishModal({ car, carState, progressStep, showChannelSelect, expanded
         <ModalFooter onClose={onClose} />
       </div>
       {showChannelSelect && (
-        <ChannelSelectModal carName={`${car.year} ${car.make} ${car.model} — ${car.reg}`}
+        <ChannelSelectModal carName={carLabel}
           currentChannels={channels} publishedChannels={publishedChannels}
           onClose={onCloseChannelSelect} onValidate={onValidate} />
+      )}
+      {showUnpublishSelect && (
+        <UnpublishChannelSelectModal carName={carLabel}
+          publishedChannels={publishedChannels}
+          onClose={onCloseChannelSelect} onNext={onUnpublishNext} />
+      )}
+      {showUnpublishConfirm && (
+        <UnpublishConfirmModal
+          channels={unpublishChannels}
+          onCancel={onUnpublishBack} onConfirm={onUnpublishNow} />
       )}
     </div>
   );
 }
 
 // ── Builder sidebar panel content (passed into Ep2A1BuilderIdle as rightSidebarContent) ─
-function BuilderSidebarPanel({ carState, progressStep, expandedErrors, onAddChannels, onPublish, onToggleError, onGoToBuilder }: {
+function BuilderSidebarPanel({ carState, progressStep, expandedErrors, onAddChannels, onPublish, onToggleError, onGoToBuilder, onUnpublish }: {
   carState: CarState; progressStep: number; expandedErrors: string[];
   onAddChannels: () => void; onPublish: () => void;
-  onToggleError: (ch: string) => void; onGoToBuilder?: () => void;
+  onToggleError: (ch: string) => void; onGoToBuilder?: () => void; onUnpublish?: () => void;
 }) {
   const { channels, publishState, publishedChannels, failedChannels } = carState;
   const leftoverChannels = channels.filter(ch => !publishedChannels.includes(ch) && !failedChannels.includes(ch));
@@ -2082,26 +2282,29 @@ function BuilderSidebarPanel({ carState, progressStep, expandedErrors, onAddChan
     <ProgressPanel channels={channels} progressStep={progressStep} />
   );
   if (publishState === "published") return (
-    <PublishedPanel channels={publishedChannels} onAddChannels={onAddChannels} />
+    <PublishedPanel channels={publishedChannels} onAddChannels={onAddChannels} onUnpublish={onUnpublish} />
   );
   if (publishState === "partial_error") return (
     <PartialErrorPanel publishedChannels={publishedChannels} failedChannels={failedChannels} leftoverChannels={leftoverChannels}
       expandedErrors={expandedErrors} onToggleError={onToggleError}
-      onAddChannels={onAddChannels} onPublish={onPublish} onGoToBuilder={onGoToBuilder} />
+      onAddChannels={onAddChannels} onPublish={onPublish} onGoToBuilder={onGoToBuilder} onUnpublish={onUnpublish} />
   );
   if (channels.length === 0) return <EmptyPublishPanel onAddChannels={onAddChannels} />;
   return <WithChannelsPanel channels={channels} onAddChannels={onAddChannels} onPublish={onPublish} />;
 }
 
 // ── Builder Screen ────────────────────────────────────────────────────────────
-function BuilderScreen({ car, carState, progressStep, sidebarVisible, showChannelSelect, expandedErrors, onGoToDashboard, onShowSidebar, onAddChannels, onPublish, onCloseChannelSelect, onValidate, onToggleError }: {
+function BuilderScreen({ car, carState, progressStep, sidebarVisible, showChannelSelect, showUnpublishSelect, unpublishChannels, showUnpublishConfirm, expandedErrors, onGoToDashboard, onShowSidebar, onCloseSidebar, onAddChannels, onPublish, onCloseChannelSelect, onValidate, onToggleError, onOpenUnpublish, onUnpublishNext, onUnpublishBack, onUnpublishNow }: {
   car: (typeof CARS)[0]; carState: CarState; progressStep: number; sidebarVisible: boolean;
-  showChannelSelect: boolean; expandedErrors: string[];
-  onGoToDashboard: () => void; onShowSidebar: () => void;
+  showChannelSelect: boolean; showUnpublishSelect: boolean; unpublishChannels: string[]; showUnpublishConfirm: boolean; expandedErrors: string[];
+  onGoToDashboard: () => void; onShowSidebar: () => void; onCloseSidebar: () => void;
   onAddChannels: () => void; onPublish: () => void;
   onCloseChannelSelect: () => void; onValidate: (ch: string[]) => void;
   onToggleError: (ch: string) => void;
+  onOpenUnpublish: () => void; onUnpublishNext: (ch: string[]) => void; onUnpublishBack: () => void; onUnpublishNow: () => void;
 }) {
+  const carLabel = `${car.year} ${car.make} ${car.model} — ${car.reg}`;
+
   const handleBuilderClick = useCallback((e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
     const pEl = target.closest("p");
@@ -2111,24 +2314,42 @@ function BuilderScreen({ car, carState, progressStep, sidebarVisible, showChanne
     if (text === "Publish to channels" && !sidebarVisible) { onShowSidebar(); return; }
   }, [onGoToDashboard, onShowSidebar, sidebarVisible]);
 
+  const overlayModals = (
+    <>
+      {showChannelSelect && (
+        <div className="absolute inset-0 z-10">
+          <ChannelSelectModal carName={carLabel}
+            currentChannels={carState.channels} publishedChannels={carState.publishedChannels}
+            onClose={onCloseChannelSelect} onValidate={onValidate} />
+        </div>
+      )}
+      {showUnpublishSelect && (
+        <div className="absolute inset-0 z-10">
+          <UnpublishChannelSelectModal carName={carLabel}
+            publishedChannels={carState.publishedChannels}
+            onClose={onCloseChannelSelect} onNext={onUnpublishNext} />
+        </div>
+      )}
+      {showUnpublishConfirm && (
+        <div className="absolute inset-0 z-10">
+          <UnpublishConfirmModal
+            channels={unpublishChannels}
+            onCancel={onUnpublishBack} onConfirm={onUnpublishNow} />
+        </div>
+      )}
+    </>
+  );
+
   if (!sidebarVisible) {
     return (
       <div className="size-full relative" onClick={handleBuilderClick}>
         <Ep2A0BuilderIdle />
-        {showChannelSelect && (
-          <div className="absolute inset-0 z-10">
-            <ChannelSelectModal carName={`${car.year} ${car.make} ${car.model} — ${car.reg}`}
-              currentChannels={carState.channels} publishedChannels={carState.publishedChannels}
-              onClose={onCloseChannelSelect} onValidate={onValidate} />
-          </div>
-        )}
+        {overlayModals}
       </div>
     );
   }
 
   // EP2·A1: sidebar visible.
-  // The dynamic panel is passed as rightSidebarContent prop — Ep2A1BuilderIdle slots it in
-  // place of the hardcoded RightA1PublishingPanel, inside the correct Figma layout structure.
   const sidebarPanel = (
     <BuilderSidebarPanel
       carState={carState}
@@ -2138,19 +2359,14 @@ function BuilderScreen({ car, carState, progressStep, sidebarVisible, showChanne
       onPublish={onPublish}
       onToggleError={onToggleError}
       onGoToBuilder={onGoToDashboard}
+      onUnpublish={onOpenUnpublish}
     />
   );
 
   return (
     <div className="size-full relative" onClick={handleBuilderClick}>
-      <Ep2A1BuilderIdle rightSidebarContent={sidebarPanel} />
-      {showChannelSelect && (
-        <div className="absolute inset-0 z-10">
-          <ChannelSelectModal carName={`${car.year} ${car.make} ${car.model} — ${car.reg}`}
-            currentChannels={carState.channels} publishedChannels={carState.publishedChannels}
-            onClose={onCloseChannelSelect} onValidate={onValidate} />
-        </div>
-      )}
+      <Ep2A1BuilderIdle rightSidebarContent={sidebarPanel} onCloseSidebar={onCloseSidebar} />
+      {overlayModals}
     </div>
   );
 }
@@ -2168,6 +2384,10 @@ export default function App() {
   const [showChannelSelect, setShowChannelSelect] = useState(false);
   const [progressStep, setProgressStep] = useState(0);
   const [expandedErrors, setExpandedErrors] = useState<string[]>([]);
+  // Unpublish flow (C2 / C3)
+  const [showUnpublishSelect, setShowUnpublishSelect] = useState(false);
+  const [unpublishChannels, setUnpublishChannels] = useState<string[]>([]);
+  const [showUnpublishConfirm, setShowUnpublishConfirm] = useState(false);
 
   // Batch selection state
   const [selectedCarIds, setSelectedCarIds] = useState<string[]>([]);
@@ -2277,11 +2497,35 @@ export default function App() {
     }
     setActiveCarId(null);
     setShowChannelSelect(false);
+    setShowUnpublishSelect(false);
+    setShowUnpublishConfirm(false);
+    setUnpublishChannels([]);
     setExpandedErrors([]);
   };
 
   const handleAddChannels    = () => setShowChannelSelect(true);
-  const handleCloseChSelect  = () => setShowChannelSelect(false);
+  const handleCloseChSelect  = () => { setShowChannelSelect(false); setShowUnpublishSelect(false); };
+
+  const handleOpenUnpublish  = () => setShowUnpublishSelect(true);
+  const handleUnpublishNext  = (channels: string[]) => { setUnpublishChannels(channels); setShowUnpublishSelect(false); setShowUnpublishConfirm(true); };
+  const handleUnpublishBack  = () => { setShowUnpublishConfirm(false); setShowUnpublishSelect(true); };
+  const handleUnpublishNow   = (carId: string) => {
+    setCarStates(prev => {
+      const existing = prev[carId] ?? DEFAULT_CAR_STATE;
+      const toRemove = new Set(unpublishChannels);
+      const newPublished = existing.publishedChannels.filter(ch => !toRemove.has(ch));
+      const newFailed    = existing.failedChannels.filter(ch => !toRemove.has(ch));
+      const newChannels  = existing.channels.filter(ch => !toRemove.has(ch));
+      if (newPublished.length === 0 && newFailed.length === 0) {
+        // All channels removed — reset to initial state
+        const n = { ...prev }; delete n[carId]; return n;
+      }
+      const newState: PublishState = newFailed.length > 0 ? "partial_error" : "published";
+      return { ...prev, [carId]: { channels: newChannels, publishState: newState, publishedChannels: newPublished, failedChannels: newFailed } };
+    });
+    setShowUnpublishConfirm(false);
+    setUnpublishChannels([]);
+  };
 
   const handleValidate = (carId: string, selectedChannels: string[]) => {
     const existing = carStates[carId] ?? DEFAULT_CAR_STATE;
@@ -2325,6 +2569,14 @@ export default function App() {
     setShowChannelSelect(false);
   };
 
+  const handleCloseSidebar = () => {
+    setBuilderSidebarVisible(false);
+    setShowChannelSelect(false);
+    setShowUnpublishSelect(false);
+    setShowUnpublishConfirm(false);
+    setUnpublishChannels([]);
+  };
+
   const handleGoToDashboard = () => {
     // Reset builder car state when leaving builder
     if (builderCarId) {
@@ -2333,6 +2585,9 @@ export default function App() {
     setBuilderCarId(null);
     setBuilderSidebarVisible(false);
     setShowChannelSelect(false);
+    setShowUnpublishSelect(false);
+    setShowUnpublishConfirm(false);
+    setUnpublishChannels([]);
     setExpandedErrors([]);
     setScreen("dashboard");
   };
@@ -2344,6 +2599,9 @@ export default function App() {
         <style>{`
           .hide-modal [data-name="div.modal-overlay"] { display: none !important; }
           @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+          button, [data-name^="button"] { cursor: pointer; }
+          button:hover:not(:disabled), [data-name^="button"]:hover { filter: brightness(0.93); transition: filter 0.1s; }
+          [data-name^="a.subnav-tab"]:hover, [data-name^="div.top-nav-link"]:hover { filter: brightness(0.92); transition: filter 0.1s; cursor: default; }
         `}</style>
         <BuilderScreen
           car={builderCar}
@@ -2351,14 +2609,22 @@ export default function App() {
           progressStep={progressStep}
           sidebarVisible={builderSidebarVisible}
           showChannelSelect={showChannelSelect}
+          showUnpublishSelect={showUnpublishSelect}
+          unpublishChannels={unpublishChannels}
+          showUnpublishConfirm={showUnpublishConfirm}
           expandedErrors={expandedErrors}
           onGoToDashboard={handleGoToDashboard}
           onShowSidebar={() => setBuilderSidebarVisible(true)}
+          onCloseSidebar={handleCloseSidebar}
           onAddChannels={handleAddChannels}
           onPublish={() => handlePublish(builderCar.id)}
           onCloseChannelSelect={handleCloseChSelect}
           onValidate={(ch) => handleValidate(builderCar.id, ch)}
           onToggleError={handleToggleError}
+          onOpenUnpublish={handleOpenUnpublish}
+          onUnpublishNext={handleUnpublishNext}
+          onUnpublishBack={handleUnpublishBack}
+          onUnpublishNow={() => handleUnpublishNow(builderCar.id)}
         />
       </div>
     );
@@ -2371,6 +2637,7 @@ export default function App() {
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         button, [data-name^="button"] { cursor: pointer; }
         button:hover:not(:disabled), [data-name^="button"]:hover { filter: brightness(0.93); transition: filter 0.1s; }
+        [data-name^="a.subnav-tab"]:hover, [data-name^="div.top-nav-link"]:hover { filter: brightness(0.92); transition: filter 0.1s; cursor: default; }
         ${buildBatchCSS(selectedCarIds)}
       `}</style>
       <div className="size-full hide-modal" onClick={handleDashboardClick}>
@@ -2393,6 +2660,7 @@ export default function App() {
         <PublishModal
           car={activeCar} carState={getCarState(activeCar.id)}
           progressStep={progressStep} showChannelSelect={showChannelSelect}
+          showUnpublishSelect={showUnpublishSelect} unpublishChannels={unpublishChannels} showUnpublishConfirm={showUnpublishConfirm}
           expandedErrors={expandedErrors}
           onClose={handleClose} onAddChannels={handleAddChannels}
           onPublish={() => handlePublish(activeCar.id)}
@@ -2400,6 +2668,10 @@ export default function App() {
           onValidate={(ch) => handleValidate(activeCar.id, ch)}
           onToggleError={handleToggleError}
           onGoToBuilder={handleGoToBuilder}
+          onOpenUnpublish={handleOpenUnpublish}
+          onUnpublishNext={handleUnpublishNext}
+          onUnpublishBack={handleUnpublishBack}
+          onUnpublishNow={() => handleUnpublishNow(activeCar.id)}
         />
       )}
 
