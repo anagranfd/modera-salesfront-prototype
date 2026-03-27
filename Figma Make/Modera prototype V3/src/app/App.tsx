@@ -2284,10 +2284,24 @@ export default function App() {
   const handleCloseChSelect  = () => setShowChannelSelect(false);
 
   const handleValidate = (carId: string, selectedChannels: string[]) => {
-    setCarStates(prev => ({
-      ...prev,
-      [carId]: { ...(prev[carId] ?? DEFAULT_CAR_STATE), channels: selectedChannels, publishState: "unpublished" },
-    }));
+    const existing = carStates[carId] ?? DEFAULT_CAR_STATE;
+    if (existing.publishedChannels.length > 0) {
+      // Already published to some channels — add new ones as leftover in partial_error state
+      setCarStates(prev => ({
+        ...prev,
+        [carId]: {
+          channels: [...existing.publishedChannels, ...selectedChannels],
+          publishState: "partial_error",
+          publishedChannels: existing.publishedChannels,
+          failedChannels: [],
+        },
+      }));
+    } else {
+      setCarStates(prev => ({
+        ...prev,
+        [carId]: { ...existing, channels: selectedChannels, publishState: "unpublished" },
+      }));
+    }
     setShowChannelSelect(false);
   };
 
