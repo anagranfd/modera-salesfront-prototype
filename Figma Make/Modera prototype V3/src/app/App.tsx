@@ -2000,8 +2000,8 @@ export default function App() {
       <style>{`
         .hide-modal [data-name="div.modal-overlay"] { display: none !important; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        button { cursor: pointer; }
-        button:hover:not(:disabled) { filter: brightness(0.93); transition: filter 0.1s; }
+        button, [data-name^="button"] { cursor: pointer; }
+        button:hover:not(:disabled), [data-name^="button"]:hover { filter: brightness(0.93); transition: filter 0.1s; }
         ${buildBatchCSS(selectedCarIds)}
       `}</style>
       <div className="size-full hide-modal" onClick={handleDashboardClick}>
