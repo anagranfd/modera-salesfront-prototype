@@ -16,6 +16,10 @@ import imgTick1 from "figma:asset/97e2fac5e5ecd3905b19d3c7d8316079e9f047ee.png";
 import imgChevronCollapsed from "figma:asset/4a9c72fa2e7298897e7d0010d288987e25d43d1a.png";
 import imgChevronExpanded from "figma:asset/1d44bc3ceed34f96b203588d42bb7fe30d04784a.png";
 import imgExclamation2 from "figma:asset/dea9c03e7c09878da61d7db52a94bb21a33799db.png";
+import imgExclamation from "figma:asset/exclamation.png";
+import imgExclamationRed from "figma:asset/exclamation-red.png";
+import imgExclamationRedFrame from "figma:asset/exclamation-red-frame.png";
+import imgTick from "figma:asset/tick.png";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const ALL_CHANNELS = ["Auto24", "Mobile.de", "SS.lv", "Autoplius", "City24"];
@@ -37,6 +41,16 @@ const CARS = [
   { id: "audi-a4",       name: "Audi A4 2.0 TFSI",          year: "2018", reg: "AUD-321",  price: "€22,900", mileage: "87,300 km",  fuel: "Petrol",  make: "Audi",       model: "A4 2.0 TFSI"    },
   { id: "skoda-octavia", name: "Skoda Octavia 1.5 TSI",     year: "2022", reg: "SKO-222",  price: "€19,900", mileage: "18,500 km",  fuel: "Petrol",  make: "Skoda",      model: "Octavia 1.5 TSI" },
 ];
+
+// ── Batch result routing ───────────────────────────────────────────────────────
+// B7: VW Golf + Audi A4 + Skoda Octavia (first + last two)
+// B6: BMW in selection + at least one of its fail channels selected
+function getBatchResult(selIds: string[], selChannels: string[]): "success" | "partial_errors" | "all_failed" {
+  const s = new Set(selIds);
+  if (selIds.length === 3 && ["vw-golf","audi-a4","skoda-octavia"].every(id => s.has(id))) return "all_failed";
+  if (s.has(BMW_ID) && BMW_FAIL_CHANNELS.some(ch => selChannels.includes(ch))) return "partial_errors";
+  return "success";
+}
 
 // ── Dot backgrounds (copied verbatim pattern from Figma source) ───────────────
 // DOT colors use CSS url() with escaped single quotes inside (CSS escape \'). 
@@ -1348,6 +1362,298 @@ function BatchSuccessModal({ selectedCarIds, selectedChannels, onDone }: {
   );
 }
 
+// ── Batch Partial Errors Modal — EP3·B6 ───────────────────────────────────────
+function BatchPartialErrorsModal({ selectedCarIds, selectedChannels, onDone }: {
+  selectedCarIds: string[]; selectedChannels: string[]; onDone: () => void;
+}) {
+  const selectedCars = CARS.filter(c => selectedCarIds.includes(c.id));
+  const failedOps = selectedCars.reduce((acc, car) => {
+    if (car.id === BMW_ID) return acc + BMW_FAIL_CHANNELS.filter(ch => selectedChannels.includes(ch)).length;
+    return acc;
+  }, 0);
+  const totalOps = selectedCars.length * selectedChannels.length;
+  const successOps = totalOps - failedOps;
+  const failDetails = selectedCars
+    .filter(c => c.id === BMW_ID)
+    .flatMap(c => BMW_FAIL_CHANNELS.filter(ch => selectedChannels.includes(ch)).map(ch => `${c.make} ${c.model} – ${ch}`))
+    .join(", ");
+
+  function cellValue(carId: string, ch: string) {
+    if (carId === BMW_ID && BMW_FAIL_CHANNELS.includes(ch)) return "✗";
+    return "✓";
+  }
+  function cellColor(val: string) {
+    return val === "✗" ? "text-[#c83030]" : "text-[#2d8a4e]";
+  }
+
+  return (
+    <div className="absolute inset-0 flex items-center justify-center" style={{ background: "rgba(20,40,60,0.6)", zIndex: 20 }}>
+      <div className="bg-white content-stretch flex flex-col items-start max-w-[720px] min-w-[560px] p-px relative rounded-[4px] shrink-0 w-[576px]">
+        <div aria-hidden="true" className="absolute border border-[#8aabbd] border-solid inset-0 pointer-events-none rounded-[4px] shadow-[0px_8px_32px_0px_rgba(0,0,0,0.35),0px_2px_8px_0px_rgba(0,0,0,0.2)]" />
+        {/* Title header — orange */}
+        <div className="relative shrink-0 w-full">
+          <div className="content-stretch flex flex-col items-start p-[8px] relative w-full">
+            <div className="bg-gradient-to-b from-[#c87820] relative rounded-[4px] shrink-0 to-[#8a4a10] w-full">
+              <div className="content-stretch flex items-center justify-between px-[12px] py-[10px] relative w-full">
+                <div className="flex items-center gap-[6px]">
+                  <img alt="" className="relative shrink-0 size-[16px] object-cover pointer-events-none" src={imgExclamation} />
+                  <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[13px] text-shadow-[0px_1px_2px_rgba(0,0,0,0.3)] text-white whitespace-nowrap">
+                    <p className="leading-[normal]">Batch publish: partial results</p>
+                  </div>
+                </div>
+                <button onClick={onDone} className="cursor-pointer p-[2px]">
+                  <div className="flex flex-col font-['Arial:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[16px] text-[rgba(255,255,255,0.8)] text-center whitespace-nowrap">
+                    <p className="leading-[16px]">✕</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Step wizard */}
+        <div className="relative shrink-0 w-full">
+          <div className="content-stretch flex flex-col items-start px-[8px] relative w-full">
+            <div className="bg-gradient-to-b from-[#f0f6fa] h-[31px] relative rounded-[4px] shrink-0 to-[#e4edf5] w-full">
+              <div className="content-stretch flex items-center px-[12px] py-[8px] relative w-full h-full">
+                <div className="content-stretch flex flex-1 gap-[8px] items-center relative">
+                  <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#2d7fa8] text-[11px] whitespace-nowrap"><p className="leading-[normal]">✓ 1. Channels</p></div>
+                  <div className="bg-[#2d7fa8] flex-1 h-px" />
+                  <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#2d7fa8] text-[11px] whitespace-nowrap"><p className="leading-[normal]">✓ 2. Validate</p></div>
+                  <div className="bg-[#c87820] flex-1 h-px" />
+                  <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#c87820] text-[11px] whitespace-nowrap"><p className="leading-[normal]">● 3. Publish</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Body */}
+        <div className="relative shrink-0 w-full">
+          <div className="content-stretch flex flex-col gap-[8px] items-start px-[8px] py-[8px] relative w-full">
+            {/* Alert banner */}
+            <div className="bg-[#eef2f5] relative rounded-[3px] shrink-0 w-full">
+              <div aria-hidden="true" className="absolute border border-[#c87820] border-solid inset-0 pointer-events-none rounded-[3px]" />
+              <div className="content-stretch flex gap-[4px] items-center px-[11px] py-[8px] relative w-full">
+                <img alt="" className="relative shrink-0 size-[16px] object-cover pointer-events-none" src={imgExclamation} />
+                <div className="flex flex-col font-['Segoe_UI:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#1a3347] text-[11.5px]">
+                  <p className="leading-[normal]">
+                    <span className="font-['Segoe_UI:Bold',sans-serif]">{successOps} of {totalOps} operations successful · {failedOps} failed</span>
+                    {failDetails && ` (${failDetails})`}
+                  </p>
+                </div>
+              </div>
+            </div>
+            {/* Results grid */}
+            <div className="bg-white content-stretch flex flex-col items-start relative shrink-0 w-full overflow-x-auto">
+              <div className="content-stretch flex items-start justify-center relative shrink-0 w-full">
+                <div className="bg-gradient-to-b content-stretch flex flex-col from-[#ddeef7] items-start p-[9px] relative shrink-0 to-[#c8dce8] w-[180px]">
+                  <div aria-hidden="true" className="absolute border border-[#aec5d4] border-solid inset-0 pointer-events-none" />
+                  <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#5a7080] text-[11px] whitespace-nowrap"><p className="leading-[normal]">Vehicle</p></div>
+                </div>
+                {selectedChannels.map(ch => (
+                  <div key={ch} className="bg-gradient-to-b flex-1 from-[#ddeef7] min-h-px min-w-px relative to-[#c8dce8]">
+                    <div aria-hidden="true" className="absolute border-[#aec5d4] border-b border-r border-solid border-t inset-0 pointer-events-none" />
+                    <div className="content-stretch flex flex-col items-start pl-[8px] pr-[9px] py-[9px] relative w-full">
+                      <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#5a7080] text-[11px] whitespace-nowrap"><p className="leading-[normal]">{ch}</p></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {selectedCars.map((car, idx) => (
+                <div key={car.id} className="content-stretch flex items-start justify-center relative shrink-0 w-full" style={{ borderBottom: "1px solid #e4edf5", background: idx % 2 === 1 ? "#f0f6fa" : "#fafcfe" }}>
+                  <div className="relative shrink-0 w-[180px]" style={{ background: "inherit" }}>
+                    <div aria-hidden="true" className="absolute border-[#e4edf5] border-l border-r border-solid inset-0 pointer-events-none" />
+                    <div className="content-stretch flex flex-col items-start justify-center p-[9px] relative w-full">
+                      <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#1a2e3d] text-[11.5px] whitespace-nowrap">
+                        <p className="leading-[normal]">{car.make} {car.model}</p>
+                      </div>
+                    </div>
+                  </div>
+                  {selectedChannels.map(ch => {
+                    const val = cellValue(car.id, ch);
+                    return (
+                      <div key={ch} className="flex-1 min-h-px min-w-px relative" style={{ background: "inherit" }}>
+                        <div aria-hidden="true" className="absolute border-[#e4edf5] border-r border-solid inset-0 pointer-events-none" />
+                        <div className="content-stretch flex flex-col items-start justify-center pl-[8px] pr-[9px] py-[9px] relative w-full">
+                          <div className={`flex flex-col font-['Segoe_UI:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[11px] w-full ${cellColor(val)}`}>
+                            <p className="leading-[normal]">{val}</p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        {/* Footer */}
+        <div className="relative shrink-0 w-full">
+          <div className="content-stretch flex flex-col items-start p-[8px] relative w-full">
+            <div className="bg-gradient-to-b from-[#f0f6fa] h-[40px] relative rounded-[4px] shrink-0 to-[#e4edf5] w-full">
+              <div className="flex flex-row items-center size-full">
+                <div className="content-stretch flex items-center justify-end gap-[6px] p-[8px] relative size-full">
+                  <button onClick={onDone} className="h-[24px] relative rounded-[3px] shrink-0 cursor-pointer">
+                    <div aria-hidden="true" className="absolute bg-gradient-to-b from-[#f5f9fc] inset-0 pointer-events-none rounded-[3px] to-[#ddeef7]" />
+                    <div aria-hidden="true" className="absolute border border-[#8aabbd] border-solid inset-0 pointer-events-none rounded-[3px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]" />
+                    <div className="content-stretch flex gap-[4px] h-full items-center justify-center px-[11px] py-[3px] relative">
+                      <BtnLabel text="Close" />
+                    </div>
+                    <div className="absolute inset-0 pointer-events-none rounded-[inherit] shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.7)]" />
+                  </button>
+                  <button onClick={onDone} className="h-[24px] relative rounded-[3px] shrink-0 cursor-pointer">
+                    <div aria-hidden="true" className="absolute bg-gradient-to-b from-[#5bbde0] inset-0 pointer-events-none rounded-[3px] to-[#3a9ec8]" />
+                    <div aria-hidden="true" className="absolute border border-[#2a7ea8] border-solid inset-0 pointer-events-none rounded-[3px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]" />
+                    <div className="content-stretch flex gap-[4px] h-full items-center justify-center px-[11px] py-[3px] relative">
+                      <BtnIcon src={imgTick} /><BtnLabel text="Retry failed" color="white" shadow="0px_1px_1px_rgba(0,0,0,0.2)" />
+                    </div>
+                    <div className="absolute inset-0 pointer-events-none rounded-[inherit] shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.7)]" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Batch All Failed Modal — EP3·B7 ───────────────────────────────────────────
+function BatchAllFailedModal({ selectedCarIds, selectedChannels, onDone }: {
+  selectedCarIds: string[]; selectedChannels: string[]; onDone: () => void;
+}) {
+  const selectedCars = CARS.filter(c => selectedCarIds.includes(c.id));
+  const totalOps = selectedCars.length * selectedChannels.length;
+
+  return (
+    <div className="absolute inset-0 flex items-center justify-center" style={{ background: "rgba(20,40,60,0.6)", zIndex: 20 }}>
+      <div className="bg-white content-stretch flex flex-col items-start max-w-[720px] min-w-[560px] p-px relative rounded-[4px] shrink-0 w-[576px]">
+        <div aria-hidden="true" className="absolute border border-[#8aabbd] border-solid inset-0 pointer-events-none rounded-[4px] shadow-[0px_8px_32px_0px_rgba(0,0,0,0.35),0px_2px_8px_0px_rgba(0,0,0,0.2)]" />
+        {/* Title header — red */}
+        <div className="relative shrink-0 w-full">
+          <div className="content-stretch flex flex-col items-start p-[8px] relative w-full">
+            <div className="bg-gradient-to-b from-[#c83030] relative rounded-[4px] shrink-0 to-[#801010] w-full">
+              <div className="content-stretch flex items-center justify-between px-[12px] py-[10px] relative w-full">
+                <div className="flex items-center gap-[6px]">
+                  <img alt="" className="relative shrink-0 size-[16px] object-cover pointer-events-none" src={imgExclamationRedFrame} />
+                  <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[13px] text-shadow-[0px_1px_2px_rgba(0,0,0,0.3)] text-white whitespace-nowrap">
+                    <p className="leading-[normal]">Batch publish failed</p>
+                  </div>
+                </div>
+                <button onClick={onDone} className="cursor-pointer p-[2px]">
+                  <div className="flex flex-col font-['Arial:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[16px] text-[rgba(255,255,255,0.8)] text-center whitespace-nowrap">
+                    <p className="leading-[16px]">✕</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Step wizard */}
+        <div className="relative shrink-0 w-full">
+          <div className="content-stretch flex flex-col items-start px-[8px] relative w-full">
+            <div className="bg-gradient-to-b from-[#f0f6fa] h-[31px] relative rounded-[4px] shrink-0 to-[#e4edf5] w-full">
+              <div className="content-stretch flex items-center px-[12px] py-[8px] relative w-full h-full">
+                <div className="content-stretch flex flex-1 gap-[8px] items-center relative">
+                  <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#2d7fa8] text-[11px] whitespace-nowrap"><p className="leading-[normal]">✓ 1. Channels</p></div>
+                  <div className="bg-[#2d7fa8] flex-1 h-px" />
+                  <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#2d7fa8] text-[11px] whitespace-nowrap"><p className="leading-[normal]">✓ 2. Validate</p></div>
+                  <div className="bg-[#c83030] flex-1 h-px" />
+                  <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#c83030] text-[11px] whitespace-nowrap"><p className="leading-[normal]">● 3. Publish</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Body */}
+        <div className="relative shrink-0 w-full">
+          <div className="content-stretch flex flex-col gap-[8px] items-start px-[8px] py-[8px] relative w-full">
+            {/* Alert banner */}
+            <div className="bg-[#f5f9fc] relative rounded-[3px] shrink-0 w-full">
+              <div aria-hidden="true" className="absolute border border-[#c83030] border-solid inset-0 pointer-events-none rounded-[3px]" />
+              <div className="content-stretch flex gap-[4px] items-center px-[11px] py-[8px] relative w-full">
+                <img alt="" className="relative shrink-0 size-[16px] object-cover pointer-events-none" src={imgExclamationRed} />
+                <div className="flex flex-col font-['Segoe_UI:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#1a3347] text-[11.5px]">
+                  <p className="leading-[normal]">
+                    <span className="font-['Segoe_UI:Bold',sans-serif]">All {totalOps} operations failed</span>
+                    {" · Connection error or portal unavailable. Check your network and try again."}
+                  </p>
+                </div>
+              </div>
+            </div>
+            {/* Results grid */}
+            <div className="bg-white content-stretch flex flex-col items-start relative shrink-0 w-full overflow-x-auto">
+              <div className="content-stretch flex items-start justify-center relative shrink-0 w-full">
+                <div className="bg-gradient-to-b content-stretch flex flex-col from-[#ddeef7] items-start p-[9px] relative shrink-0 to-[#c8dce8] w-[180px]">
+                  <div aria-hidden="true" className="absolute border border-[#aec5d4] border-solid inset-0 pointer-events-none" />
+                  <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#5a7080] text-[11px] whitespace-nowrap"><p className="leading-[normal]">Vehicle</p></div>
+                </div>
+                {selectedChannels.map(ch => (
+                  <div key={ch} className="bg-gradient-to-b flex-1 from-[#ddeef7] min-h-px min-w-px relative to-[#c8dce8]">
+                    <div aria-hidden="true" className="absolute border-[#aec5d4] border-b border-r border-solid border-t inset-0 pointer-events-none" />
+                    <div className="content-stretch flex flex-col items-start pl-[8px] pr-[9px] py-[9px] relative w-full">
+                      <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#5a7080] text-[11px] whitespace-nowrap"><p className="leading-[normal]">{ch}</p></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {selectedCars.map((car, idx) => (
+                <div key={car.id} className="content-stretch flex items-start justify-center relative shrink-0 w-full" style={{ borderBottom: "1px solid #e4edf5", background: idx % 2 === 1 ? "#f0f6fa" : "#fafcfe" }}>
+                  <div className="relative shrink-0 w-[180px]" style={{ background: "inherit" }}>
+                    <div aria-hidden="true" className="absolute border-[#e4edf5] border-l border-r border-solid inset-0 pointer-events-none" />
+                    <div className="content-stretch flex flex-col items-start justify-center p-[9px] relative w-full">
+                      <div className="flex flex-col font-['Segoe_UI:Bold',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#1a2e3d] text-[11.5px] whitespace-nowrap">
+                        <p className="leading-[normal]">{car.make} {car.model}</p>
+                      </div>
+                    </div>
+                  </div>
+                  {selectedChannels.map(ch => (
+                    <div key={ch} className="flex-1 min-h-px min-w-px relative" style={{ background: "inherit" }}>
+                      <div aria-hidden="true" className="absolute border-[#e4edf5] border-r border-solid inset-0 pointer-events-none" />
+                      <div className="content-stretch flex flex-col items-start justify-center pl-[8px] pr-[9px] py-[9px] relative w-full">
+                        <div className="flex flex-col font-['Segoe_UI:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[11px] w-full text-[#c83030]">
+                          <p className="leading-[normal]">✗</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        {/* Footer */}
+        <div className="relative shrink-0 w-full">
+          <div className="content-stretch flex flex-col items-start p-[8px] relative w-full">
+            <div className="bg-gradient-to-b from-[#f0f6fa] h-[40px] relative rounded-[4px] shrink-0 to-[#e4edf5] w-full">
+              <div className="flex flex-row items-center size-full">
+                <div className="content-stretch flex items-center justify-end gap-[6px] p-[8px] relative size-full">
+                  <button onClick={onDone} className="h-[24px] relative rounded-[3px] shrink-0 cursor-pointer">
+                    <div aria-hidden="true" className="absolute bg-gradient-to-b from-[#f5f9fc] inset-0 pointer-events-none rounded-[3px] to-[#ddeef7]" />
+                    <div aria-hidden="true" className="absolute border border-[#8aabbd] border-solid inset-0 pointer-events-none rounded-[3px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]" />
+                    <div className="content-stretch flex gap-[4px] h-full items-center justify-center px-[11px] py-[3px] relative">
+                      <BtnLabel text="Close" />
+                    </div>
+                    <div className="absolute inset-0 pointer-events-none rounded-[inherit] shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.7)]" />
+                  </button>
+                  <button onClick={onDone} className="h-[24px] relative rounded-[3px] shrink-0 cursor-pointer">
+                    <div aria-hidden="true" className="absolute bg-gradient-to-b from-[#5bbde0] inset-0 pointer-events-none rounded-[3px] to-[#3a9ec8]" />
+                    <div aria-hidden="true" className="absolute border border-[#2a7ea8] border-solid inset-0 pointer-events-none rounded-[3px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1)]" />
+                    <div className="content-stretch flex gap-[4px] h-full items-center justify-center px-[11px] py-[3px] relative">
+                      <BtnIcon src={imgTick} /><BtnLabel text="Retry all" color="white" shadow="0px_1px_1px_rgba(0,0,0,0.2)" />
+                    </div>
+                    <div className="absolute inset-0 pointer-events-none rounded-[inherit] shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.7)]" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Batch Validation Modal — EP3·B3 Step 2 of 3 ───────────────────────────────
 function BatchValidationModal({ selectedCarIds, selectedChannels, onBack, onProceed, onClose, onFixIssues }: {
   selectedCarIds: string[]; selectedChannels: string[];
@@ -1816,7 +2122,7 @@ export default function App() {
 
   // Batch selection state
   const [selectedCarIds, setSelectedCarIds] = useState<string[]>([]);
-  const [batchStep, setBatchStep] = useState<"none" | "channels" | "validation" | "fix_issues" | "progress" | "success">("none");
+  const [batchStep, setBatchStep] = useState<"none" | "channels" | "validation" | "fix_issues" | "progress" | "success" | "partial_errors" | "all_failed">("none");
   const [batchChannels, setBatchChannels] = useState<string[]>(ALL_CHANNELS.slice(0, 4));
 
   // Portal container inside Table-bottom's parent (injects batch bar in place of pagination)
@@ -2070,13 +2376,31 @@ export default function App() {
         <BatchProgressModal
           selectedCarIds={selectedCarIds}
           selectedChannels={batchChannels}
-          onDone={() => setBatchStep("success")}
+          onDone={() => setBatchStep(getBatchResult(selectedCarIds, batchChannels))}
         />
       )}
 
       {/* EP3·B5 — Batch Success */}
       {batchStep === "success" && (
         <BatchSuccessModal
+          selectedCarIds={selectedCarIds}
+          selectedChannels={batchChannels}
+          onDone={() => { setBatchStep("none"); setSelectedCarIds([]); }}
+        />
+      )}
+
+      {/* EP3·B6 — Batch Partial Errors */}
+      {batchStep === "partial_errors" && (
+        <BatchPartialErrorsModal
+          selectedCarIds={selectedCarIds}
+          selectedChannels={batchChannels}
+          onDone={() => { setBatchStep("none"); setSelectedCarIds([]); }}
+        />
+      )}
+
+      {/* EP3·B7 — Batch All Failed */}
+      {batchStep === "all_failed" && (
+        <BatchAllFailedModal
           selectedCarIds={selectedCarIds}
           selectedChannels={batchChannels}
           onDone={() => { setBatchStep("none"); setSelectedCarIds([]); }}
