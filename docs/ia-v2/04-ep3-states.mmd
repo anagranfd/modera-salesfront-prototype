@@ -9,50 +9,50 @@ flowchart TD
   classDef entryStyle    fill:#1e3a52,stroke:#1e3a52,color:#fff
   classDef builderStyle  fill:#dcfce7,stroke:#22c55e,color:#14532d
 
-  TABLE[\"S1 · Inventory Table\\n5 vehicles · checkboxes\\nRow highlight on select\"]
+  TABLE["S1 · Inventory Table\n5 vehicles · checkboxes\nRow highlight on select"]
 
-  TABLE_SEL[\"S1 (selected) · Rows checked\\nRow highlight #DCE8F0\\nBatch action bar replaces pagination\"]
+  TABLE_SEL["S1 (selected) · Rows checked\nRow highlight #DCE8F0\nBatch action bar replaces pagination"]
 
-  B1[\"B1 · Batch Action Bar\\nN vehicles selected\\n→ Publish selected · Cancel\"]
+  B1["B1 · Batch Action Bar\nN vehicles selected\n→ Publish selected · Cancel"]
 
-  B2[\"B2 · Batch Channel Selector\\nSame portal list as EP1\\nApplies to ALL selected vehicles\\nCompleteness bars per channel\\n→ Cancel · Next: Validate →\"]
+  B2["B2 · Batch Channel Selector\nSame portal list as EP1\nApplies to ALL selected vehicles\nCompleteness bars per channel\n→ Cancel · Next: Validate →"]
 
-  B3[\"B3 · Validation Summary\\nVehicle × channel matrix\\nGreen ✓ = ready · Orange ⚠ = issues\\nCount of potential failures shown\\n→ Proceed anyway → · Fix issues (Builder) →\"]
+  B3["B3 · Validation Summary\nVehicle × channel matrix\nGreen ✓ = ready · Orange ⚠ = issues\nCount of potential failures shown\n→ Proceed anyway → · Fix issues (Builder) →"]
 
-  B3A[\"B3a · Fix Issues (Builder)\\nBuilder opens for affected vehicle\\nSidebar shows validation context / issues\\n→ Back to inventory\"]
+  B3A["B3a · Fix Issues (Builder)\nBuilder opens for affected vehicle\nSidebar shows validation context + issues\n→ Back to inventory"]
 
-  B4[\"B4 · Batch Progress\\nBlue progress bar\\nPer-vehicle table: spinner → ✓ or ✗\\nauto-completes\"]
+  B4["B4 · Batch Progress\nBlue progress bar\nPer-vehicle table: spinner → ✓ or ✗\nauto-completes"]
 
-  B5[\"B5 · Batch Success\\nGreen header\\n'Batch publish complete'\\nAll vehicles: ✓ across all channels\\n→ Close\"]
+  B5["B5 · Batch Success\nGreen header\n'Batch publish complete'\nAll vehicles: ✓ across all channels\n→ Close"]
 
-  B6[\"B6 · Partial Errors\\nOrange header\\nBMW: Mobile.de + City24 ✗\\nOther vehicles: all ✓\\n→ Retry failed · Close\"]
+  B6["B6 · Partial Errors\nOrange header\nBMW: Mobile.de + City24 ✗\nOther vehicles: all ✓\n→ Retry failed · Close"]
 
-  B7[\"B7 · All Failed\\nRed header\\nAll vehicles: ✗ across all channels\\n→ Retry all · Close\"]
+  B7["B7 · All Failed\nRed header\nAll vehicles: ✗ across all channels\n→ Retry all · Close"]
 
-  TABLE -->|\"Tick checkboxes\"| TABLE_SEL
-  TABLE_SEL -->|\"Cancel / uncheck all\"| TABLE
-  TABLE_SEL -->|\"Publish selected\"| B1
+  TABLE -->|"Tick checkboxes"| TABLE_SEL
+  TABLE_SEL -->|"Cancel or uncheck all"| TABLE
+  TABLE_SEL -->|"Publish selected"| B1
 
-  B1 -->|\"Cancel\"| TABLE
-  B1 -->|\"Publish selected\"| B2
+  B1 -->|"Cancel"| TABLE
+  B1 -->|"Publish selected"| B2
 
-  B2 -->|\"Cancel\"| B1
-  B2 -->|\"Next: Validate →\"| B3
+  B2 -->|"Cancel"| B1
+  B2 -->|"Next: Validate →"| B3
 
-  B3 -->|\"Fix issues (Builder) →\"| B3A
-  B3A -->|\"← Back to inventory\"| TABLE
+  B3 -->|"Fix issues (Builder) →"| B3A
+  B3A -->|"Back to inventory"| TABLE
 
-  B3 -->|\"Proceed anyway →\"| B4
+  B3 -->|"Proceed anyway →"| B4
 
-  B4 -->|\"All vehicles succeed\\n(VW Golf · Toyota · Audi · Skoda)\"| B5
-  B4 -->|\"BMW in selection —\\nMobile.de + City24 fail\"| B6
-  B4 -->|\"All channels fail\\nfor all vehicles\"| B7
+  B4 -->|"All vehicles succeed\n(VW Golf · Toyota · Audi · Skoda)"| B5
+  B4 -->|"BMW in selection —\nMobile.de + City24 fail"| B6
+  B4 -->|"All channels fail\nfor all vehicles"| B7
 
-  B5 -->|\"Close\"| TABLE
-  B6 -->|\"Close\"| TABLE
-  B6 -->|\"Retry failed\"| B4
-  B7 -->|\"Close\"| TABLE
-  B7 -->|\"Retry all\"| B4
+  B5 -->|"Close"| TABLE
+  B6 -->|"Close"| TABLE
+  B6 -->|"Retry failed"| B4
+  B7 -->|"Close"| TABLE
+  B7 -->|"Retry all"| B4
 
   class TABLE,TABLE_SEL inventoryState
   class B1,B2,B3 batchState

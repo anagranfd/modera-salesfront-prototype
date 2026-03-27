@@ -8,68 +8,68 @@ flowchart TD
 
   %% ── Scenario 1: First publish ────────────────────────────────────────────────
 
-  SC1([\"SC1 · Publishing a vehicle for the first time\"])
-  SC1 --> SC1A[\"Click vehicle row\\nDialog opens over inventory\"]
-  SC1A --> SC1B[\"Click Add channels\\nChannel selector opens\"]
-  SC1B --> SC1C[\"Tick portals\\nSee completeness bars\\nClick Next: Validate\"]
-  SC1C --> SC1D[\"Channels listed in Not published panel\\nClick Publish to channels\"]
-  SC1D --> SC1E[\"Progress bar advances\\nchannel by channel\"]
-  SC1E --> SC1F[\"Active Channels panel\\nGreen dots + timestamps\"]
+  SC1(["SC1 · Publishing a vehicle for the first time"])
+  SC1 --> SC1A["Click vehicle row\nDialog opens over inventory"]
+  SC1A --> SC1B["Click Add channels\nChannel selector opens"]
+  SC1B --> SC1C["Tick portals\nSee completeness bars\nClick Next: Validate"]
+  SC1C --> SC1D["Channels listed in Not published panel\nClick Publish to channels"]
+  SC1D --> SC1E["Progress bar advances\nchannel by channel"]
+  SC1E --> SC1F["Active Channels panel\nGreen dots + timestamps"]
 
   %% ── Scenario 2: Partial failure ──────────────────────────────────────────────
 
-  SC2([\"SC2 · BMW 320d — partial publish failure\"])
-  SC2 --> SC2A[\"Same steps as SC1\\nthrough publish\"]
-  SC2A --> SC2B[\"Progress: Auto24 + SS.lv succeed\\nMobile.de + City24 fail\"]
-  SC2B --> SC2C[\"Panel splits:\\nActive channels (green)\\nNot published (red ✕)\"]
-  SC2C --> SC2D[\"Click expand arrow\\nInline error detail opens\"]
-  SC2D --> SC2E{\"Next action?\"}
-  SC2E -->|\"Retry\"| SC2F[\"Click Publish to channels\\nRetry failed channels → SC1E\"]
-  SC2E -->|\"Fix data\"| SC2G[\"Click Go to Builder → SC3\"]
+  SC2(["SC2 · BMW 320d — partial publish failure"])
+  SC2 --> SC2A["Same steps as SC1\nthrough publish"]
+  SC2A --> SC2B["Progress: Auto24 + SS.lv succeed\nMobile.de + City24 fail"]
+  SC2B --> SC2C["Panel splits:\nActive channels (green)\nNot published (red ✕)"]
+  SC2C --> SC2D["Click expand arrow\nInline error detail opens"]
+  SC2D --> SC2E{"Next action?"}
+  SC2E -->|"Retry"| SC2F["Click Publish to channels\nRetry failed channels → SC1E"]
+  SC2E -->|"Fix data"| SC2G["Click Go to Builder → SC3"]
 
   %% ── Scenario 3: Fix in Builder ────────────────────────────────────────────────
 
-  SC3([\"SC3 · Go to Builder to fix issues\"])
-  SC3 --> SC3A[\"Builder opens\\nPublishing sidebar already open\\nError context visible\"]
-  SC3A --> SC3B[\"Edit highlighted fields\\nCompleteness bars update in real time\"]
-  SC3B --> SC3C[\"Click Publish to channels\\nfrom sidebar → same as SC1D\"]
-  SC3C --> SC3D[\"✕ button closes sidebar\\nManager stays in Builder\"]
-  SC3D --> SC3E[\"← Inventory returns to table\"]
+  SC3(["SC3 · Go to Builder to fix issues"])
+  SC3 --> SC3A["Builder opens\nPublishing sidebar already open\nError context visible"]
+  SC3A --> SC3B["Edit highlighted fields\nCompleteness bars update in real time"]
+  SC3B --> SC3C["Click Publish to channels\nfrom sidebar → same as SC1D"]
+  SC3C --> SC3D["✕ button closes sidebar\nManager stays in Builder"]
+  SC3D --> SC3E["Back: Inventory returns to table"]
 
   %% ── Scenario 4: Add more channels ────────────────────────────────────────────
 
-  SC4([\"SC4 · Adding channels to an already-published vehicle\"])
-  SC4 --> SC4A[\"Open dialog for live vehicle\\nActive Channels panel shown\"]
-  SC4A --> SC4B[\"Click Add channels\\nAlready-published portals filtered out\"]
-  SC4B --> SC4C[\"Select new portal(s)\\nClick Next: Validate\"]
-  SC4C --> SC4D[\"Panel shows two groups:\\nActive channels + Not published (new)\"]
-  SC4D --> SC4E[\"Click Publish to channels\\n→ same success/fail path as SC1\"]
+  SC4(["SC4 · Adding channels to an already-published vehicle"])
+  SC4 --> SC4A["Open dialog for live vehicle\nActive Channels panel shown"]
+  SC4A --> SC4B["Click Add channels\nAlready-published portals filtered out"]
+  SC4B --> SC4C["Select new portal(s)\nClick Next: Validate"]
+  SC4C --> SC4D["Panel shows two groups:\nActive channels + Not published (new)"]
+  SC4D --> SC4E["Click Publish to channels\n→ same success-fail path as SC1"]
 
   %% ── Scenario 5: Unpublish ─────────────────────────────────────────────────────
 
-  SC5([\"SC5 · Unpublishing from specific channels\"])
-  SC5 --> SC5A[\"Open dialog for published vehicle\\nClick Unpublish… in Active Channels\"]
-  SC5A --> SC5B[\"Unpublish selector opens\\nAll active channels pre-selected\"]
-  SC5B --> SC5C[\"Deselect channels to keep\\nClick Unpublish to Channels →\"]
-  SC5C --> SC5D[\"Confirm dialog:\\nchannel list + warning note\"]
-  SC5D --> SC5E{\"Remaining channels?\"}
-  SC5E -->|\"All removed\"| SC5F[\"Panel resets to Not published (Empty)\"]
-  SC5E -->|\"Some remain active\"| SC5G[\"Active Channels panel\\nshows remaining portals\"]
-  SC5E -->|\"Mix of active + failed remain\"| SC5H[\"Partial Error panel\"]
+  SC5(["SC5 · Unpublishing from specific channels"])
+  SC5 --> SC5A["Open dialog for published vehicle\nClick Unpublish… in Active Channels"]
+  SC5A --> SC5B["Unpublish selector opens\nAll active channels pre-selected"]
+  SC5B --> SC5C["Deselect channels to keep\nClick Unpublish to Channels →"]
+  SC5C --> SC5D["Confirm dialog:\nchannel list + warning note"]
+  SC5D --> SC5E{"Remaining channels?"}
+  SC5E -->|"All removed"| SC5F["Panel resets to Not published (Empty)"]
+  SC5E -->|"Some remain active"| SC5G["Active Channels panel\nshows remaining portals"]
+  SC5E -->|"Mix of active + failed remain"| SC5H["Partial Error panel"]
 
   %% ── Scenario 6: Batch publish ────────────────────────────────────────────────
 
-  SC6([\"SC6 · Batch publishing multiple vehicles\"])
-  SC6 --> SC6A[\"Tick checkboxes on multiple rows\\nBatch action bar appears\"]
-  SC6A --> SC6B[\"Click Publish selected\\nBatch channel selector opens\"]
-  SC6B --> SC6C[\"Pick channels · Next: Validate →\\nValidation matrix shown\"]
-  SC6C --> SC6D{\"Issues found?\"}
-  SC6D -->|\"Proceed anyway\"| SC6E[\"Batch progress modal\\nvehicle-by-vehicle\"]
-  SC6D -->|\"Fix issues\"| SC6F[\"Builder opens for affected vehicle\\n← Back to inventory → re-select → repeat\"]
-  SC6E --> SC6G{\"Result?\"}
-  SC6G -->|\"All succeed\"| SC6H[\"Green header:\\nBatch publish complete ✓\"]
-  SC6G -->|\"BMW fails some channels\"| SC6I[\"Orange header:\\nBMW Mobile.de + City24 ✗\\n→ Retry failed\"]
-  SC6G -->|\"All fail\"| SC6J[\"Red header:\\nAll ✗\\n→ Retry all\"]
+  SC6(["SC6 · Batch publishing multiple vehicles"])
+  SC6 --> SC6A["Tick checkboxes on multiple rows\nBatch action bar appears"]
+  SC6A --> SC6B["Click Publish selected\nBatch channel selector opens"]
+  SC6B --> SC6C["Pick channels · Next: Validate →\nValidation matrix shown"]
+  SC6C --> SC6D{"Issues found?"}
+  SC6D -->|"Proceed anyway"| SC6E["Batch progress modal\nvehicle-by-vehicle"]
+  SC6D -->|"Fix issues"| SC6F["Builder opens for affected vehicle\nBack to inventory → re-select → repeat"]
+  SC6E --> SC6G{"Result?"}
+  SC6G -->|"All succeed"| SC6H["Green header:\nBatch publish complete ✓"]
+  SC6G -->|"BMW fails some channels"| SC6I["Orange header:\nBMW Mobile.de + City24 ✗\n→ Retry failed"]
+  SC6G -->|"All fail"| SC6J["Red header:\nAll ✗\n→ Retry all"]
 
   class SC1,SC2,SC3,SC4,SC5,SC6 scLabel
   class SC1F,SC2F,SC3C,SC4E,SC5F,SC5G,SC6H scOutcome
