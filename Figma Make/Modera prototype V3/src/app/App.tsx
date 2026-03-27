@@ -45,10 +45,10 @@ const CARS = [
 // ── Batch result routing ───────────────────────────────────────────────────────
 // B7: VW Golf + Audi A4 + Skoda Octavia (first + last two)
 // B6: BMW in selection + at least one of its fail channels selected
-function getBatchResult(selIds: string[], selChannels: string[]): "success" | "partial_errors" | "all_failed" {
+function getBatchResult(selIds: string[], _selChannels: string[]): "success" | "partial_errors" | "all_failed" {
   const s = new Set(selIds);
   if (selIds.length === 3 && ["vw-golf","audi-a4","skoda-octavia"].every(id => s.has(id))) return "all_failed";
-  if (s.has(BMW_ID) && BMW_FAIL_CHANNELS.some(ch => selChannels.includes(ch))) return "partial_errors";
+  if (selIds.length === 3 && ["bmw-320d","audi-a4","skoda-octavia"].every(id => s.has(id))) return "partial_errors";
   return "success";
 }
 
