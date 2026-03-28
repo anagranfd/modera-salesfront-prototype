@@ -38,6 +38,14 @@ The prototype opens on the Inventory screen. Start any scenario from there:
 
 ---
 
+## Figma
+
+**[→ Open Figma file](https://www.figma.com/design/Rtl5gUhZ1dBA3tHRRb14jS/Modera---Design-Task---Vehicle-Publishing-Tool?node-id=81-908)**
+
+- **Page:** "Page 1.2 – 27.03.2026" · 29 screens across EP1 / EP2 / EP3
+
+---
+
 ## Deliverables
 
 ### Interactive prototype
@@ -88,10 +96,3 @@ The prototype opens on the Inventory screen. Start any scenario from there:
 
 **Completeness bars are informational** — Channels with low completeness (orange bar) can still be published. The warning informs but doesn't block. Strict validation gates are only applied by the channel's own API at publish time.
 
----
-
-## Figma
-
-**[→ Open Figma file](https://www.figma.com/design/Rtl5gUhZ1dBA3tHRRb14jS/Modera---Design-Task---Vehicle-Publishing-Tool?node-id=81-908)**
-
-- **Page:** "Page 1.2 – 27.03.2026" · 29 screens across EP1 / EP2 / EP3
