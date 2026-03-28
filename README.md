@@ -42,8 +42,6 @@ The prototype opens on the Inventory screen. Start any scenario from there:
 
 **[→ Open Figma file](https://www.figma.com/design/Rtl5gUhZ1dBA3tHRRb14jS/Modera---Design-Task---Vehicle-Publishing-Tool?node-id=81-908)**
 
-- **Page:** "Page 1.2 – 27.03.2026" · 29 screens across EP1 / EP2 / EP3
-
 ---
 
 ## Deliverables
