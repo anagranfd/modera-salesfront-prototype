@@ -1,7 +1,7 @@
 # Vehicle Publishing Tool — UX Design
 
 **Test assignment · Modera Salesfront CRM**
-**Designer:** Anastasia Granfeld · March 2026
+**Designer:** Evgeniy Yatskov · March 2026
 
 ---
 
